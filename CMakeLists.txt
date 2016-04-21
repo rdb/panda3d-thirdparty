@@ -155,3 +155,28 @@ ExternalProject_Add(
     -DWITH_TURBOJPEG=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
 )
+
+ExternalProject_Add(
+  squish
+  DEPENDS png
+  URL https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/libsquish/squish-1.10.tar.gz
+  URL_HASH SHA256=aec3428badafdbb3b0ed1ea3a385a8029e65694282459f61b4a538963e8cada3
+
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libsquish.cmake <SOURCE_DIR>/CMakeLists.txt
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
+    -DBUILD_SHARED_LIBS=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/squish
+)
+
+ExternalProject_Add(
+  fcollada
+  GIT_REPOSITORY https://github.com/rdb/fcollada.git
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_UNICODE=OFF
+    -DBUILD_TESTS=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
+)

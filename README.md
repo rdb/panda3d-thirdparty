@@ -11,25 +11,23 @@ Usage example:
     cmake --build . --config Release
 
 
-Included packages:
-* assimp
-* bullet
-* freetype
-* jpeg
-* openal
-* png
-* vorbis
-* zlib
-
-Still missing:
-* artoolkit
-* eigen
-* fcollada
-* ffmpeg
-* fmodex
-* nvidiacg
-* ode
-* rocket
-* squish
-* tiff
-* vrpn
+Some packages are still forthcoming.  The included packages are ticked.
+- [ ] artoolkit
+- [x] assimp
+- [x] bullet
+- [ ] eigen
+- [x] fcollada
+- [ ] ffmpeg
+- [ ] fmodex
+- [x] freetype
+- [x] jpeg
+- [ ] nvidiacg
+- [ ] ode
+- [x] openal
+- [x] png
+- [ ] rocket
+- [x] squish
+- [ ] tiff
+- [x] vorbis
+- [ ] vrpn
+- [x] zlib
