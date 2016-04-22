@@ -1,7 +1,7 @@
 # Many of this is based on the scripts in the Polycode project.  Many thanks
 # to the respective authors for going through the work of figuring this out!
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.3)
 
 include(ExternalProject)
 
@@ -179,4 +179,33 @@ ExternalProject_Add(
     -DBUILD_UNICODE=OFF
     -DBUILD_TESTS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
+)
+
+ExternalProject_Add(
+  vrpn
+  # Pull from git since 7.33 has a bug in the CMake stuff
+  GIT_REPOSITORY https://github.com/vrpn/vrpn.git
+  GIT_TAG 76327ab688959a4277418991ed484f14ad0d9dca
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DQUATLIB_BUILD_EXAMPLES=OFF
+    -DVRPN_BUILD_CLIENTS=OFF
+    -DVRPN_BUILD_CLIENT_LIBRARY=ON
+    -DVRPN_BUILD_JAVA=OFF
+    -DVRPN_BUILD_PYTHON=OFF
+    -DVRPN_BUILD_SERVERS=OFF
+    -DVRPN_BUILD_SERVER_LIBRARY=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
+)
+
+ExternalProject_Add(
+  tiff
+  DEPENDS zlib jpeg
+  URL http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz
+  URL_HASH SHA256=4d57a50907b510e3049a4bba0d7888930fdfc16ce49f1bf693e5b6247370d68c
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
+    -DBUILD_SHARED_LIBS=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/tiff
 )

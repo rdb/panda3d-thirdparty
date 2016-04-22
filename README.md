@@ -27,7 +27,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] png
 - [ ] rocket
 - [x] squish
-- [ ] tiff
+- [x] tiff
 - [x] vorbis
-- [ ] vrpn
+- [x] vrpn
 - [x] zlib
