@@ -209,3 +209,41 @@ ExternalProject_Add(
     -DBUILD_SHARED_LIBS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/tiff
 )
+
+ExternalProject_Add(
+  eigen
+  URL https://bitbucket.org/eigen/eigen/get/3.2.8.tar.gz
+  URL_HASH SHA256=8d01d2d3a173c59065642a08d1dd661b399e4fed6edbda632143e7be937de7e0
+
+  # No need to build anything; just copy over the Eigen directory.
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+
+  INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Eigen <INSTALL_DIR>/include/Eigen
+  INSTALL_DIR ${THIRDPARTY_DIR}/eigen
+)
+
+ExternalProject_Add(
+  ode
+  URL http://prdownloads.sourceforge.net/opende/ode-0.13.tar.bz2
+  URL_HASH SHA256=34ce3e236e313bf109a0cb5546d2fca462aed99f29a42e62bc1463b803c31ef9
+
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode.cmake <SOURCE_DIR>/CMakeLists.txt
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DBUILD_SHARED_LIBS=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/ode
+)
+
+ExternalProject_Add(
+  artoolkit
+  URL http://prdownloads.sourceforge.net/artoolkit/ARToolKit-2.72.1.tgz
+  URL_HASH SHA256=1a49a67c6e196b0e9990e90255ce840287ac47b5a53371a68a6dd93a5425d259
+
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DBUILD_SHARED_LIBS=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
+)

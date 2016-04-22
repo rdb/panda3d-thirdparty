@@ -12,18 +12,19 @@ Usage example:
 
 
 Some packages are still forthcoming.  The included packages are ticked.
-- [ ] artoolkit
+- [x] artoolkit
 - [x] assimp
 - [x] bullet
-- [ ] eigen
+- [x] eigen
 - [x] fcollada
 - [ ] ffmpeg
 - [ ] fmodex
 - [x] freetype
 - [x] jpeg
 - [ ] nvidiacg
-- [ ] ode
+- [x] ode
 - [x] openal
+- [ ] openssl
 - [x] png
 - [ ] rocket
 - [x] squish
