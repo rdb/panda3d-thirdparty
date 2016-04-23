@@ -200,16 +200,16 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   jpeg
-  # Until my patch gets accepted
-  GIT_REPOSITORY https://github.com/rdb/libjpeg-turbo.git
-  #URL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/1.4.90.tar.gz
-  #URL_HASH SHA256=ba731ccc34839af7ee985c77e7734c56c72ef5f148d1abc236b9185c166f129c
+  URL http://www.ijg.org/files/jpegsrc.v9b.tar.gz
+  URL_HASH SHA256=240fd398da741669bf3c90366f58452ea59041cacc741a489b99f2f6a0bad052
+
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg.cmake <SOURCE_DIR>/CMakeLists.txt
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg-jconfig.h.cmake <SOURCE_DIR>/jconfig.h.cmake
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DENABLE_SHARED=OFF
-    -DENABLE_STATIC=ON
-    -DWITH_SIMD=OFF
-    -DWITH_TURBOJPEG=OFF
+    -DBUILD_STATIC=ON
+    -DBUILD_EXECUTABLES=OFF
+    -DBUILD_TESTS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
 )
 
