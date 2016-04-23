@@ -10,19 +10,22 @@ IF(NOT CMAKE_BUILD_TYPE)
     MESSAGE("No CMAKE_BUILD_TYPE specified, defaulting to ${CMAKE_BUILD_TYPE}")
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# to distinguish between debug and release lib
-SET(CMAKE_DEBUG_POSTFIX "d")
-
 FIND_PATH(OGG_INCLUDE_DIR NAMES ogg/ogg.h)
 
-FIND_LIBRARY(OGG_RELEASE_LIBRARY NAMES libogg_static)
-FIND_LIBRARY(OGG_DEBUG_LIBRARY NAMES libogg_staticd)
+IF(MSVC)
+    SET(CMAKE_DEBUG_POSTFIX "d")
+    FIND_LIBRARY(OGG_RELEASE_LIBRARY NAMES libogg_static)
+    FIND_LIBRARY(OGG_DEBUG_LIBRARY NAMES libogg_staticd)
+ELSE()
+    FIND_LIBRARY(OGG_RELEASE_LIBRARY NAMES ogg)
+    FIND_LIBRARY(OGG_DEBUG_LIBRARY NAMES ogg)
+ENDIF()
 
 IF(OGG_DEBUG_LIBRARY)
     LIST(APPEND OGG_LIBRARY debug ${OGG_DEBUG_LIBRARY})
 ENDIF(OGG_DEBUG_LIBRARY)
 IF(OGG_RELEASE_LIBRARY)
-    LIST(APPEND OGG_LIBRARY  optimized ${OGG_RELEASE_LIBRARY})
+    LIST(APPEND OGG_LIBRARY optimized ${OGG_RELEASE_LIBRARY})
 ENDIF(OGG_RELEASE_LIBRARY)
 
 MESSAGE("CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
@@ -106,15 +109,16 @@ IF(MSVC)
     LIST(APPEND libvorbis_SRCS win32/vorbis.def)
 ENDIF(MSVC)
 
-ADD_LIBRARY(libvorbis_static ${libvorbis_SRCS} ${libvorbis_HDRS} ${vorbis_public_HDRS})
+IF(MSVC)
+    ADD_LIBRARY(libvorbis_static STATIC ${libvorbis_SRCS} ${libvorbis_HDRS} ${vorbis_public_HDRS})
+    ADD_LIBRARY(libvorbisfile_static STATIC lib/vorbisfile.c include/vorbis/vorbisfile.h)
 
-ADD_LIBRARY(libvorbisfile_static lib/vorbisfile.c include/vorbis/vorbisfile.h)
+    INSTALL(TARGETS vorbis vorbisfile DESTINATION lib)
+ELSE()
+    ADD_LIBRARY(vorbis STATIC ${libvorbis_SRCS} ${libvorbis_HDRS} ${vorbis_public_HDRS})
+    ADD_LIBRARY(vorbisfile STATIC lib/vorbisfile.c include/vorbis/vorbisfile.h)
 
-INSTALL(TARGETS
-    libvorbis_static
-    libvorbisfile_static
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib)
+    INSTALL(TARGETS vorbis vorbisfile DESTINATION lib)
+ENDIF()
 
 INSTALL(FILES ${vorbis_public_HDRS} DESTINATION include/vorbis)

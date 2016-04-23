@@ -20,8 +20,22 @@ option(NO_THREADING_INTF "Disable threading interface support (external implemen
 option(16BIT_INDICES "Use 16-bit indices for trimeshes (default is 32-bit)" OFF)
 option(OLD_TRIMESH "Use old OPCODE trimesh-trimesh collider" OFF)
 option(BUILD_SHARED_LIBS "Build shared (DLL) version of the library" OFF)
-option(ONLY_SINGLE "Only use single-precision math" OFF)
-option(ONLY_DOUBLE "Only use double-precision math" OFF)
+
+if(MSVC)
+  # In MSVC, we can build both configurations.
+  option(ONLY_SINGLE "Only use single-precision math" OFF)
+  option(ONLY_DOUBLE "Only use double-precision math" OFF)
+else()
+  # In other systems, we must choose at configure time.
+  option(WITH_DOUBLE_PRECISION "Use double-precision math" OFF)
+  if(WITH_DOUBLE_PRECISION)
+    set(ONLY_DOUBLE ON)
+    set(ONLY_SINGLE OFF)
+  else()
+    set(ONLY_DOUBLE OFF)
+    set(ONLY_SINGLE ON)
+  endif()
+endif()
 
 include_directories(include ode/src)
 
@@ -172,13 +186,19 @@ else()
   set(SOURCES ${SOURCES} ${OPCODE_FILES})
 endif()
 
-add_library(ode_single ${SOURCES})
-add_library(ode_double ${SOURCES})
+if(MSVC)
+  add_library(ode_single ${SOURCES})
+  add_library(ode_double ${SOURCES})
 
-target_compile_definitions(ode_single PUBLIC -DdIDESINGLE -DCCD_IDESINGLE)
-target_compile_definitions(ode_double PUBLIC -DdIDEDOUBLE -DCCD_IDEDOUBLE)
+  target_compile_definitions(ode_single PUBLIC -DdIDESINGLE -DCCD_IDESINGLE)
+  target_compile_definitions(ode_double PUBLIC -DdIDEDOUBLE -DCCD_IDEDOUBLE)
 
-install(TARGETS ode_single ode_double DESTINATION lib)
+  install(TARGETS ode_single ode_double DESTINATION lib)
+else()
+  add_library(ode ${SOURCES})
+
+  install(TARGETS ode DESTINATION lib)
+endif()
 
 file(GLOB ODE_HEADERS include/ode/*.h)
 install(FILES ${ODE_HEADERS} DESTINATION include/ode)

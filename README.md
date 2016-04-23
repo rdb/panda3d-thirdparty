@@ -1,8 +1,6 @@
 This repository contains a CMake script to build the thirdparty packages that
 are necessary for building Panda3D.
 
-Currently it only works on Windows.
-
 Usage example:
 
     mkdir build

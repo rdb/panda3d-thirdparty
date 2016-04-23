@@ -4,8 +4,20 @@ cmake_minimum_required(VERSION 2.8)
 project(artoolkit)
 
 option(BUILD_SHARED_LIBS "Enable to build libAR as a shared library." OFF)
+option(AR_OPENGL_TEXTURE_RECTANGLE "Enable to build gsub libraries with GL_NV_texture_rectangle support." OFF)
 
-configure_file(include/AR/config.h.in AR/config.h)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  option(AR_INPUT_V4L "Use Video4Linux video capture driver." ON)
+  option(AR_INPUT_DV "Use Digital Video Camcoder through IEEE 1394 (DV Format) capture driver." OFF)
+  option(AR_INPUT_1394CAM "Use Digital Video Camera through IEEE 1394 (VGA NONCOMPRESSED Image Format) capture driver." OFF)
+  option(AR_INPUT_GSTREAMER "Use GStreamer Media Framework capture driver." OFF)
+endif()
+
+if(APPLE)
+  option(APPLE_TEXTURE_FAST_TRANSFER "Set if your Mac has fast texture mapping hardware." OFF)
+endif()
+
+configure_file(include/AR/config.h.cmake AR/config.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(include)
 
@@ -51,15 +63,20 @@ set(AR_SOURCES
 )
 
 set(ARMULTI_SOURCES
-  lib/src/ARMulti/arMultiActivate.c
-  lib/src/ARMulti/arMultiGetTransMat.c
-  lib/src/ARMulti/arMultiReadConfigFile.c
+  lib/SRC/ARMulti/arMultiActivate.c
+  lib/SRC/ARMulti/arMultiGetTransMat.c
+  lib/SRC/ARMulti/arMultiReadConfigFile.c
 )
 
-add_library(libAR ${AR_SOURCES})
-add_library(libARMulti ${ARMULTI_SOURCES})
-
-install(TARGETS libAR libARMulti DESTINATION lib)
+if(MSVC)
+  add_library(libAR ${AR_SOURCES})
+  add_library(libARMulti ${ARMULTI_SOURCES})
+  install(TARGETS libAR libARMulti DESTINATION lib)
+else()
+  add_library(AR ${AR_SOURCES})
+  add_library(ARMulti ${ARMULTI_SOURCES})
+  install(TARGETS AR ARMulti DESTINATION lib)
+endif()
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/AR/config.h

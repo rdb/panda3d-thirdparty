@@ -5,27 +5,45 @@ cmake_minimum_required(VERSION 2.8.3)
 
 include(ExternalProject)
 
-if(${CMAKE_GENERATOR} MATCHES "^Visual Studio 14 2015")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc14)
-elseif(${CMAKE_GENERATOR} MATCHES "^Visual Studio 12 2013")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc12)
-elseif(${CMAKE_GENERATOR} MATCHES "^Visual Studio 11 2012")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc11)
-elseif(${CMAKE_GENERATOR} MATCHES "^Visual Studio 10 2010")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc10)
-elseif(${CMAKE_GENERATOR} MATCHES "^Visual Studio 9 2008")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc9)
-elseif(${CMAKE_GENERATOR} MATCHES "^Visual Studio 8 2005")
-set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc8)
+if(${CMAKE_GENERATOR} MATCHES "^Visual Studio [0-9]+ ")
+  string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
+  list(GET WORDS 2 VCVER)
+  set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc${VCVER})
+
+  if(${CMAKE_GENERATOR} MATCHES "Win64$")
+    set(THIRDPARTY_DIR "${THIRDPARTY_DIR}-x64")
+  endif()
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/darwin-libs-a)
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/linux-libs-x64)
+  else()
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/linux-libs-a)
+  endif()
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/freebsd-libs-x64)
+  else()
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/freebsd-libs-a)
+  endif()
+
+else()
+  message(FATAL_ERROR "Unknown platform.")
 endif()
 
-if(${CMAKE_GENERATOR} MATCHES "Win64$")
-set(THIRDPARTY_DIR "${THIRDPARTY_DIR}-x64")
+if(NOT MSVC)
+  set(CMAKE_C_FLAGS "-fpic")
+  set(CMAKE_CXX_FLAGS "-fpic")
 endif()
 
 message("thirdparty packages will be installed to ${THIRDPARTY_DIR}")
 
 set(COMMON_CMAKE_ARGS
+  -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
   -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -33,10 +51,19 @@ set(COMMON_CMAKE_ARGS
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
   -DCMAKE_LINKER=${CMAKE_LINKER}
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-  -DBUILD_SHARED_LIBS=FALSE
-  -DSKIP_INSTALL_FILES=1
+  -DCMAKE_INSTALL_LIBDIR=lib
+  -DBUILD_SHARED_LIBS=OFF
+  -DSKIP_INSTALL_EXECUTABLES=ON
+  -DSKIP_INSTALL_FILES=ON
 )
+
+if(APPLE)
+  set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+    -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+  )
+endif(APPLE)
 
 ExternalProject_Add(
   zlib
@@ -45,8 +72,29 @@ ExternalProject_Add(
   URL_HASH SHA256=36658cb768a54c1d4dec43c3116c27ed893e88b02ecfcb44f2166f9c0b7f2a0d
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DZLIB_TESTS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/zlib
 )
+
+# Remove the shared libraries, which cannot be disabled in the CMake file.
+ExternalProject_Get_Property(zlib binary_dir)
+if(WIN32)
+  ExternalProject_Add_Step(zlib remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
+    WORKING_DIRECTORY ${binary_dir}
+    DEPENDEES install
+  )
+else()
+  ExternalProject_Add_Step(zlib remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
+                                       "<INSTALL_DIR>/lib/libz.so.1"
+                                       "<INSTALL_DIR>/lib/libz.so.1.2.8"
+    WORKING_DIRECTORY ${binary_dir}
+    DEPENDEES install
+  )
+endif()
 
 ExternalProject_Add(
   png
@@ -105,6 +153,8 @@ ExternalProject_Add(
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
+    -DWITH_HarfBuzz=OFF
+    -DWITH_BZip2=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/freetype
 )
 
@@ -138,6 +188,11 @@ ExternalProject_Add(
   URL_HASH SHA256=a341f8542f1f0b8c65241a17da13d073f18ec06658e1a1606a8ecc8bbc2b3314
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DLIBTYPE=STATIC
+    -DALSOFT_HRTF_DEFS=OFF
+    -DALSOFT_CONFIG=OFF
+    -DALSOFT_NO_CONFIG_UTIL=ON
+    -DALSOFT_EXAMPLES=OFF
     -DALSOFT_TESTS=OFF
     -DALSOFT_UTILS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/openal
@@ -145,15 +200,26 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   jpeg
-  URL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/1.4.90.tar.gz
-  URL_HASH SHA256=ba731ccc34839af7ee985c77e7734c56c72ef5f148d1abc236b9185c166f129c
+  # Until my patch gets accepted
+  GIT_REPOSITORY https://github.com/rdb/libjpeg-turbo.git
+  #URL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/1.4.90.tar.gz
+  #URL_HASH SHA256=ba731ccc34839af7ee985c77e7734c56c72ef5f148d1abc236b9185c166f129c
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DENABLE_SHARED=ON # otherwise it bugs
+    -DENABLE_SHARED=OFF
     -DENABLE_STATIC=ON
     -DWITH_SIMD=OFF
     -DWITH_TURBOJPEG=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
+)
+
+# Remove the extra bin and share directories it created.
+ExternalProject_Get_Property(jpeg binary_dir)
+ExternalProject_Add_Step(jpeg remove_extras
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/doc"
+  WORKING_DIRECTORY ${binary_dir}
+  DEPENDEES install
 )
 
 ExternalProject_Add(
@@ -166,7 +232,6 @@ ExternalProject_Add(
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
-    -DBUILD_SHARED_LIBS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/squish
 )
 
@@ -175,7 +240,6 @@ ExternalProject_Add(
   GIT_REPOSITORY https://github.com/rdb/fcollada.git
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DBUILD_SHARED_LIBS=OFF
     -DBUILD_UNICODE=OFF
     -DBUILD_TESTS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
@@ -193,6 +257,8 @@ ExternalProject_Add(
     -DVRPN_BUILD_CLIENT_LIBRARY=ON
     -DVRPN_BUILD_JAVA=OFF
     -DVRPN_BUILD_PYTHON=OFF
+    -DVRPN_BUILD_PYTHON_HANDCODED_2X=OFF
+    -DVRPN_BUILD_PYTHON_HANDCODED_3X=OFF
     -DVRPN_BUILD_SERVERS=OFF
     -DVRPN_BUILD_SERVER_LIBRARY=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
@@ -206,8 +272,17 @@ ExternalProject_Add(
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
-    -DBUILD_SHARED_LIBS=OFF
+    -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/tiff
+)
+
+# Remove the extra bin and share directories it created.
+ExternalProject_Get_Property(tiff binary_dir)
+ExternalProject_Add_Step(tiff remove_extras
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+  WORKING_DIRECTORY ${binary_dir}
+  DEPENDEES install
 )
 
 ExternalProject_Add(
@@ -232,7 +307,6 @@ ExternalProject_Add(
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DBUILD_SHARED_LIBS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/ode
 )
 
@@ -242,8 +316,8 @@ ExternalProject_Add(
   URL_HASH SHA256=1a49a67c6e196b0e9990e90255ce840287ac47b5a53371a68a6dd93a5425d259
 
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit-config.h.cmake <SOURCE_DIR>/include/AR/config.h.cmake
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DBUILD_SHARED_LIBS=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
 )

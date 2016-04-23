@@ -25,6 +25,9 @@ else()
   if(USE_SSE)
     add_definitions(-msse -msse2 -DSQUISH_USE_SSE=2)
   endif()
+
+  # Easiest way to solve a missing include of limits.h.
+  add_definitions(-DINT_MAX=2147483647)
 endif()
 
 set(SRC alpha.cpp clusterfit.cpp colourblock.cpp colourfit.cpp colourset.cpp maths.cpp rangefit.cpp singlecolourfit.cpp squish.cpp)
