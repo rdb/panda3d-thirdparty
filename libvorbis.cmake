@@ -113,7 +113,7 @@ IF(MSVC)
     ADD_LIBRARY(libvorbis_static STATIC ${libvorbis_SRCS} ${libvorbis_HDRS} ${vorbis_public_HDRS})
     ADD_LIBRARY(libvorbisfile_static STATIC lib/vorbisfile.c include/vorbis/vorbisfile.h)
 
-    INSTALL(TARGETS vorbis vorbisfile DESTINATION lib)
+    INSTALL(TARGETS libvorbis_static libvorbisfile_static DESTINATION lib)
 ELSE()
     ADD_LIBRARY(vorbis STATIC ${libvorbis_SRCS} ${libvorbis_HDRS} ${vorbis_public_HDRS})
     ADD_LIBRARY(vorbisfile STATIC lib/vorbisfile.c include/vorbis/vorbisfile.h)

@@ -48,6 +48,10 @@ if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_DEPRECATE /D_USE_MATH_DEFINES /wd4244)
 endif()
 
+if(APPLE)
+  add_definitions(-DMAC_OS_X_VERSION=1050)
+endif()
+
 ######################################################################
 ## Write a custom <config.h> to build, based on the supplied flags
 ######################################################################

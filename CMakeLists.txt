@@ -213,15 +213,6 @@ ExternalProject_Add(
   INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
 )
 
-# Remove the extra bin and share directories it created.
-ExternalProject_Get_Property(jpeg binary_dir)
-ExternalProject_Add_Step(jpeg remove_extras
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/doc"
-  WORKING_DIRECTORY ${binary_dir}
-  DEPENDEES install
-)
-
 ExternalProject_Add(
   squish
   DEPENDS png
