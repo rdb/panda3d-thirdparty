@@ -5,26 +5,26 @@ cmake_minimum_required(VERSION 2.8.3)
 
 include(ExternalProject)
 
-if(${CMAKE_GENERATOR} MATCHES "^Visual Studio [0-9]+ ")
+if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
   string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
   list(GET WORDS 2 VCVER)
   set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc${VCVER})
 
-  if(${CMAKE_GENERATOR} MATCHES "Win64$")
+  if(CMAKE_GENERATOR MATCHES "Win64$")
     set(THIRDPARTY_DIR "${THIRDPARTY_DIR}-x64")
   endif()
 
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/darwin-libs-a)
 
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/linux-libs-x64)
   else()
     set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/linux-libs-a)
   endif()
 
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/freebsd-libs-x64)
   else()
@@ -321,3 +321,31 @@ ExternalProject_Add(
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
   INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    ExternalProject_Add(
+      nvidiacg
+      URL http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012_x86_64.tgz
+      URL_HASH SHA256=e8ff01e6cc38d1b3fd56a083f5860737dbd2f319a39037528fb1a74a89ae9878
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/lib64 <INSTALL_DIR>/lib
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
+      INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
+    )
+  else()
+    ExternalProject_Add(
+      nvidiacg
+      URL http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012_x86.tgz
+      URL_HASH SHA256=cef3591e436f528852db0e8c145d3842f920e0c89bcfb219c466797cb7b18879
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/lib <INSTALL_DIR>/lib
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
+      INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
+    )
+  endif()
+endif()
