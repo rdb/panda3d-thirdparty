@@ -340,3 +340,15 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     )
   endif()
 endif()
+
+ExternalProject_Add(
+  openssl
+  URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
+  URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
+
+  CONFIGURE_COMMAND ./config no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
+  BUILD_COMMAND ${MAKE}
+  BUILD_IN_SOURCE 1
+
+  INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+)
