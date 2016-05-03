@@ -58,8 +58,10 @@ set(COMMON_CMAKE_ARGS
 )
 
 if(APPLE)
+  # Prevent the semicolon from becoming a space in the command.
+  string(REPLACE ";" "$<SEMICOLON>" archs "${CMAKE_OSX_ARCHITECTURES}")
   set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_ARCHITECTURES=${archs}
     -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
   )
@@ -82,6 +84,13 @@ if(WIN32)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
+    DEPENDEES install
+  )
+elseif(APPLE)
+  ExternalProject_Add_Step(zlib remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.dylib"
+                                       "<INSTALL_DIR>/lib/libz.1.dylib"
+                                       "<INSTALL_DIR>/lib/libz.1.2.8.dylib"
     DEPENDEES install
   )
 else()
@@ -109,18 +118,21 @@ ExternalProject_Add(
   INSTALL_DIR ${THIRDPARTY_DIR}/png
 )
 
-ExternalProject_Add(
-  assimp
-  DEPENDS zlib
-  GIT_REPOSITORY https://github.com/assimp/assimp.git
+if(NOT APPLE)
+  ExternalProject_Add(
+    assimp
+    DEPENDS zlib
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
-    -DASSIMP_BUILD_TESTS=OFF
-    -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
-    -DLIBRARY_SUFFIX=
-  INSTALL_DIR ${THIRDPARTY_DIR}/assimp
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
+      -DCMAKE_CXX_FLAGS=-stdlib=libc++
+      -DASSIMP_BUILD_TESTS=OFF
+      -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+      -DLIBRARY_SUFFIX=
+    INSTALL_DIR ${THIRDPARTY_DIR}/assimp
+  )
+endif()
 
 ExternalProject_Add(
   bullet
@@ -181,12 +193,13 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   openal
-  URL http://openal-soft.org/openal-releases/openal-soft-1.17.2.tar.bz2
-  URL_HASH SHA256=a341f8542f1f0b8c65241a17da13d073f18ec06658e1a1606a8ecc8bbc2b3314
+  GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+  GIT_TAG dcdeb8d1a693125cdcc120beefdfea26ab1b94e8
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DLIBTYPE=STATIC
     -DALSOFT_HRTF_DEFS=OFF
+    -DALSOFT_AMBDEC_PRESETS=OFF
     -DALSOFT_CONFIG=OFF
     -DALSOFT_NO_CONFIG_UTIL=ON
     -DALSOFT_EXAMPLES=OFF
@@ -304,12 +317,21 @@ ExternalProject_Add(
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit-config.h.cmake <SOURCE_DIR>/include/AR/config.h.cmake
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=i386$<SEMICOLON>x86_64
   INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  ExternalProject_Add(
+    nvidiacg
+    URL http://www.panda3d.org/download/noversion/NVIDIA_Cg.tgz
+    URL_HASH SHA256=cd6b12cca647749101b0286353095c7435251097d1aed0171cfc8afdcededd29
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Library/Frameworks/Cg.framework <INSTALL_DIR>/Cg.framework
+    INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
+  )    
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ExternalProject_Add(
@@ -336,17 +358,19 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   endif()
 endif()
 
-ExternalProject_Add(
-  openssl
-  URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
-  URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
+if(NOT APPLE)
+  ExternalProject_Add(
+    openssl
+    URL https://github.com/openssl/openssl/archive/OpenSSL_1_0_1s.tar.gz
+    URL_HASH SHA256=6d24e81cffc3c6db1873692f6a6daeb5eb2348e91d246c27e321600897a34c34
 
-  CONFIGURE_COMMAND ./config no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
-  BUILD_COMMAND ${MAKE}
-  BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./config no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
+    BUILD_COMMAND ${MAKE}
+    BUILD_IN_SOURCE 1
 
-  INSTALL_DIR ${THIRDPARTY_DIR}/openssl
-)
+    INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+  )
+endif()
 
 ExternalProject_Add(
   openexr
