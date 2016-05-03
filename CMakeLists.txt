@@ -77,13 +77,11 @@ ExternalProject_Add(
 )
 
 # Remove the shared libraries, which cannot be disabled in the CMake file.
-ExternalProject_Get_Property(zlib binary_dir)
 if(WIN32)
   ExternalProject_Add_Step(zlib remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
-    WORKING_DIRECTORY ${binary_dir}
     DEPENDEES install
   )
 else()
@@ -91,7 +89,6 @@ else()
     COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
                                        "<INSTALL_DIR>/lib/libz.so.1"
                                        "<INSTALL_DIR>/lib/libz.so.1.2.8"
-    WORKING_DIRECTORY ${binary_dir}
     DEPENDEES install
   )
 endif()
@@ -268,11 +265,9 @@ ExternalProject_Add(
 )
 
 # Remove the extra bin and share directories it created.
-ExternalProject_Get_Property(tiff binary_dir)
 ExternalProject_Add_Step(tiff remove_extras
   COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
   COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-  WORKING_DIRECTORY ${binary_dir}
   DEPENDEES install
 )
 
@@ -351,4 +346,23 @@ ExternalProject_Add(
   BUILD_IN_SOURCE 1
 
   INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+)
+
+ExternalProject_Add(
+  openexr
+  URL https://github.com/openexr/openexr/archive/v2.2.0.tar.gz
+  URL_HASH SHA256=8c219754af33fee199bdd72a0441f73dd4b3ce5363ac3c5cd7b2c6306f5442a6
+
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
+
+  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
+    -DNAMESPACE_VERSIONING=OFF
+  INSTALL_DIR ${THIRDPARTY_DIR}/openexr
+)
+# Remove the extra bin and share directories it created.
+ExternalProject_Add_Step(openexr remove_extras
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+  DEPENDEES install
 )

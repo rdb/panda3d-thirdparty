@@ -22,6 +22,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [ ] nvidiacg
 - [x] ode
 - [x] openal
+- [x] openexr
 - [ ] openssl
 - [x] png
 - [ ] rocket
