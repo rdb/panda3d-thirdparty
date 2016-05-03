@@ -8,8 +8,7 @@
 project ( libjpeg C )
 cmake_minimum_required ( VERSION 2.8 )
 
-OPTION(BUILD_STATIC OFF)
-OPTION(BUILD_EXECUTABLES ON)
+option(BUILD_SHARED_LIBS "Build shared instead of static library." OFF)
 
 include ( CheckIncludeFile )
 check_include_file ( stddef.h HAVE_STDDEF_H )
@@ -34,28 +33,12 @@ set ( SRC jmemnobs.c jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolo
   jidctflt.c jidctfst.c jidctint.c jquant1.c jquant2.c jutils.c jmemmgr.c cderror.h 
   cdjpeg.h jdct.h jinclude.h jmemsys.h jpegint.h jversion.h transupp.h )
 
-if ( BUILD_STATIC )
-  add_library ( jpeg STATIC ${SRC} ${HEADERS} )
-else ()
-  add_library ( jpeg ${SRC} ${HEADERS} )
+if(MSVC AND NOT BUILD_SHARED_LIBS)
+  add_library(jpeg-static STATIC ${SRC} ${HEADERS})
+  install(TARGETS jpeg-static DESTINATION lib)
+else()
+  add_library (jpeg ${SRC} ${HEADERS})
+  install(TARGETS jpeg DESTINATION lib)
 endif()
 
-if ( BUILD_EXECUTABLES )
-  add_executable ( cjpeg cdjpeg.c cjpeg.c rdbmp.c rdgif.c rdppm.c rdrle.c rdtarga.c 
-    rdswitch.c )
-  add_executable ( djpeg cdjpeg.c djpeg.c wrbmp.c wrgif.c wrppm.c wrrle.c wrtarga.c 
-    rdcolmap.c )
-  add_executable ( jpegtran jpegtran.c cdjpeg.c rdswitch.c transupp.c )
-  add_executable ( rdjpgcom rdjpgcom.c )
-  add_executable ( wrjpgcom wrjpgcom.c )
-  target_link_libraries ( cjpeg jpeg )
-  target_link_libraries ( djpeg jpeg )
-  target_link_libraries ( jpegtran jpeg )
-endif ()
-
-if ( BUILD_EXECUTABLES )
-  install(TARGETS cjpeg djpeg jpegtran rdjpgcom wrjpgcom DESTINATION bin)
-endif ()
-
-install(TARGETS jpeg DESTINATION lib)
 install(FILES ${HEADERS} DESTINATION include)

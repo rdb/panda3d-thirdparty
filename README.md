@@ -11,7 +11,7 @@ Usage example:
 
 Some packages are still forthcoming.  The included packages are ticked.
 - [x] artoolkit
-- [x] assimp
+- [x] assimp (except Mac)
 - [x] bullet
 - [x] eigen
 - [x] fcollada
@@ -23,7 +23,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] ode
 - [x] openal
 - [x] openexr
-- [ ] openssl
+- [x] openssl (except Mac)
 - [x] png
 - [ ] rocket
 - [x] squish

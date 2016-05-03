@@ -83,7 +83,6 @@ if(WIN32)
   ExternalProject_Add_Step(zlib remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
     DEPENDEES install
   )
 elseif(APPLE)
@@ -322,6 +321,31 @@ ExternalProject_Add(
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    ExternalProject_Add(
+      nvidiacg
+      URL http://www.panda3d.org/download/noversion/nvidiacg-win64.zip
+      URL_HASH SHA256=955d6e38bcba7a48e0efc8f2f0f7d5de39901788806e411744c63b55c83edfe2
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/lib <INSTALL_DIR>/lib
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/bin <INSTALL_DIR>/bin
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
+      INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
+    )
+  else()
+    ExternalProject_Add(
+      nvidiacg
+      URL http://www.panda3d.org/download/noversion/nvidiacg-win32.zip
+      URL_HASH SHA256=602ae301f3b68953a56a81ba89db0f53c0e10e8350faeb27842c5b827d9783a3
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ""
+      INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/lib <INSTALL_DIR>/lib
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/bin <INSTALL_DIR>/bin
+              COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
+      INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
+    )
+  endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   ExternalProject_Add(
     nvidiacg
@@ -358,13 +382,33 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   endif()
 endif()
 
-if(NOT APPLE)
+if(MSVC)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(ssl_config VC-WIN64A)
+  else()
+    set(ssl_config VC-WIN32)
+  endif()
+
   ExternalProject_Add(
     openssl
-    URL https://github.com/openssl/openssl/archive/OpenSSL_1_0_1s.tar.gz
-    URL_HASH SHA256=6d24e81cffc3c6db1873692f6a6daeb5eb2348e91d246c27e321600897a34c34
+    URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
+    URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
 
-    CONFIGURE_COMMAND ./config no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
+    CONFIGURE_COMMAND perl Configure ${ssl_config} no-asm no-shared --prefix=<INSTALL_DIR>
+              COMMAND ${CMAKE_CURRENT_LIST_DIR}/openssl-ms.bat ${ssl_config}
+    BUILD_COMMAND nmake -f ms\\nt.mak
+    BUILD_IN_SOURCE 1
+
+    INSTALL_COMMAND nmake -f ms\\nt.mak install
+    INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+  )
+elseif(NOT APPLE)
+  ExternalProject_Add(
+    openssl
+    URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
+    URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
+
+    CONFIGURE_COMMAND ./config no-asm no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
@@ -372,8 +416,18 @@ if(NOT APPLE)
   )
 endif()
 
+if(NOT APPLE)
+  # Delete the bin and ssl directories in the install folder.
+  ExternalProject_Add_Step(openssl remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
+    DEPENDEES install
+  )
+endif()
+
 ExternalProject_Add(
   openexr
+  DEPENDS zlib
   URL https://github.com/openexr/openexr/archive/v2.2.0.tar.gz
   URL_HASH SHA256=8c219754af33fee199bdd72a0441f73dd4b3ce5363ac3c5cd7b2c6306f5442a6
 
@@ -384,6 +438,7 @@ ExternalProject_Add(
     -DNAMESPACE_VERSIONING=OFF
   INSTALL_DIR ${THIRDPARTY_DIR}/openexr
 )
+
 # Remove the extra bin and share directories it created.
 ExternalProject_Add_Step(openexr remove_extras
   COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
