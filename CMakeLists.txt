@@ -105,8 +105,8 @@ ExternalProject_Add(
   png
   DEPENDS zlib
   #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  URL http://prdownloads.sourceforge.net/libpng/libpng-1.6.21.tar.gz
-  URL_HASH SHA256=b36a3c124622c8e1647f360424371394284f4c6c4b384593e478666c59ff42d3
+  URL http://prdownloads.sourceforge.net/libpng/libpng-1.6.26.tar.gz
+  URL_HASH SHA256=81bfc8f16ed125622c0c5ad44eeffda19e7a7c7e32f47e43c8932bf32deae7cc
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
@@ -125,9 +125,9 @@ if(NOT APPLE)
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
-      -DCMAKE_CXX_FLAGS=-stdlib=libc++
       -DASSIMP_BUILD_TESTS=OFF
       -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+      -DASSIMP_NO_EXPORT=ON
       -DLIBRARY_SUFFIX=
     INSTALL_DIR ${THIRDPARTY_DIR}/assimp
   )
@@ -156,13 +156,14 @@ ExternalProject_Add(
 ExternalProject_Add(
   freetype
   DEPENDS zlib png
-  URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.3.tar.gz
-  URL_HASH SHA256=7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3
+  URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
+  URL_HASH SHA256=3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
     -DWITH_HarfBuzz=OFF
     -DWITH_BZip2=OFF
+    -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
   INSTALL_DIR ${THIRDPARTY_DIR}/freetype
 )
 
