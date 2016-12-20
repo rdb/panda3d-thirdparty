@@ -194,7 +194,7 @@ ExternalProject_Add(
 ExternalProject_Add(
   openal
   GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-  GIT_TAG dcdeb8d1a693125cdcc120beefdfea26ab1b94e8
+  GIT_TAG 19ba71e767041c4f4b5f2f376ea0136c12dec2e7
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DLIBTYPE=STATIC
