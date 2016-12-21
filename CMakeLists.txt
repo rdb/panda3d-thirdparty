@@ -194,7 +194,7 @@ ExternalProject_Add(
 ExternalProject_Add(
   openal
   GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-  GIT_TAG 19ba71e767041c4f4b5f2f376ea0136c12dec2e7
+  GIT_TAG e270a9784bdacecedb98312a4e2e9ef75ef7df62
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DLIBTYPE=STATIC
@@ -248,9 +248,9 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   vrpn
-  # Pull from git since 7.33 has a bug in the CMake stuff
+  # Pull from git since 7.33 has some compile issues
   GIT_REPOSITORY https://github.com/vrpn/vrpn.git
-  GIT_TAG 76327ab688959a4277418991ed484f14ad0d9dca
+  GIT_TAG 9cfc1a536f39e8815066c39a1cef0f8a515a2860
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DQUATLIB_BUILD_EXAMPLES=OFF
@@ -262,6 +262,7 @@ ExternalProject_Add(
     -DVRPN_BUILD_PYTHON_HANDCODED_3X=OFF
     -DVRPN_BUILD_SERVERS=OFF
     -DVRPN_BUILD_SERVER_LIBRARY=OFF
+    -DBUILD_TESTING=FALSE
   INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
 )
 
@@ -446,3 +447,18 @@ ExternalProject_Add_Step(openexr remove_extras
   COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
   DEPENDEES install
 )
+
+if(NOT WIN32)
+  EXTERNALPROJECT_ADD(
+    ffmpeg
+    DEPENDS ogg vorbis freetype zlib
+    URL https://ffmpeg.org/releases/ffmpeg-3.2.2.tar.gz
+    URL_HASH SHA256=228d3acf6be3180a4f38b94f582e550e72f1575d94725bfa82eaaf30a904eba1
+
+    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect
+    BUILD_COMMAND ${MAKE}
+    BUILD_IN_SOURCE 1
+
+    INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
+  )
+endif()

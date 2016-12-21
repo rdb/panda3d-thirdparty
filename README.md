@@ -22,11 +22,11 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] bullet
 - [x] eigen
 - [x] fcollada
-- [ ] ffmpeg
+- [x] ffmpeg (except Windows)
 - [ ] fmodex
 - [x] freetype
 - [x] jpeg
-- [ ] nvidiacg
+- [x] nvidiacg
 - [x] ode
 - [x] openal
 - [x] openexr
