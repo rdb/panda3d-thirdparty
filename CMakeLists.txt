@@ -156,8 +156,11 @@ ExternalProject_Add(
 ExternalProject_Add(
   freetype
   DEPENDS zlib png
-  URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
-  URL_HASH SHA256=3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a
+  # Grab from git for CMake 2.8.11 fix (bug #49909)
+  GIT_REPOSITORY git://git.sv.nongnu.org/freetype/freetype2.git
+  GIT_TAG 18bd176a65c0dce5779ac610e6c09bc6d35d207b
+  #URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
+  #URL_HASH SHA256=3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
