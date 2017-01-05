@@ -105,8 +105,8 @@ ExternalProject_Add(
   png
   DEPENDS zlib
   #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  URL http://prdownloads.sourceforge.net/libpng/libpng-1.6.26.tar.gz
-  URL_HASH SHA256=81bfc8f16ed125622c0c5ad44eeffda19e7a7c7e32f47e43c8932bf32deae7cc
+  URL http://download.sourceforge.net/libpng/libpng-1.6.27.tar.gz
+  URL_HASH SHA256=c9d164ec247f426a525a7b89936694aefbc91fb7a50182b198898b8fc91174b4
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
@@ -303,8 +303,8 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   ode
-  URL http://prdownloads.sourceforge.net/opende/ode-0.13.tar.bz2
-  URL_HASH SHA256=34ce3e236e313bf109a0cb5546d2fca462aed99f29a42e62bc1463b803c31ef9
+  URL https://bitbucket.org/odedevs/ode/downloads/ode-0.14.tar.gz
+  URL_HASH SHA256=1072fc98d9d00262a0d6136e7b9ff7f5d953bbdb23b646f426909d28c0b4f6db
 
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode.cmake <SOURCE_DIR>/CMakeLists.txt
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
@@ -315,7 +315,7 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   artoolkit
-  URL http://prdownloads.sourceforge.net/artoolkit/ARToolKit-2.72.1.tgz
+  URL http://www.panda3d.org/download/noversion/ARToolKit-2.72.1.tgz
   URL_HASH SHA256=1a49a67c6e196b0e9990e90255ce840287ac47b5a53371a68a6dd93a5425d259
 
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
