@@ -303,8 +303,8 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   ode
-  URL https://bitbucket.org/odedevs/ode/downloads/ode-0.14.tar.gz
-  URL_HASH SHA256=1072fc98d9d00262a0d6136e7b9ff7f5d953bbdb23b646f426909d28c0b4f6db
+  URL https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
+  URL_HASH SHA256=35e55e05c6c6ebb813a546017285a7aceedb3e8e55c8ff102e80e26bd84c5658
 
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode.cmake <SOURCE_DIR>/CMakeLists.txt
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
