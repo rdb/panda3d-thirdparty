@@ -105,7 +105,7 @@ ExternalProject_Add(
   png
   DEPENDS zlib
   #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  URL http://download.sourceforge.net/libpng/libpng-1.6.27.tar.gz
+  URL http://www.panda3d.org/download/noversion/libpng-1.6.27.tar.gz
   URL_HASH SHA256=c9d164ec247f426a525a7b89936694aefbc91fb7a50182b198898b8fc91174b4
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
