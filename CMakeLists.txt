@@ -70,8 +70,8 @@ endif(APPLE)
 ExternalProject_Add(
   zlib
   #GIT_REPOSITORY https://github.com/madler/zlib.git
-  URL http://zlib.net/zlib-1.2.8.tar.gz
-  URL_HASH SHA256=36658cb768a54c1d4dec43c3116c27ed893e88b02ecfcb44f2166f9c0b7f2a0d
+  URL http://zlib.net/zlib-1.2.10.tar.gz
+  URL_HASH SHA256=8d7e9f698ce48787b6e1c67e6bff79e487303e66077e25cb9784ac8835978017
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DZLIB_TESTS=OFF
@@ -396,8 +396,8 @@ if(MSVC)
 
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
-    URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
+    URL https://www.openssl.org/source/openssl-1.0.2j.tar.gz
+    URL_HASH SHA256=e7aff292be21c259c6af26469c7a9b3ba26e9abaaffd325e3dccc9785256c431
 
     CONFIGURE_COMMAND perl Configure ${ssl_config} no-asm no-shared --prefix=<INSTALL_DIR>
               COMMAND ${CMAKE_CURRENT_LIST_DIR}/openssl-ms.bat ${ssl_config}
@@ -410,8 +410,8 @@ if(MSVC)
 elseif(NOT APPLE)
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.1s.tar.gz
-    URL_HASH SHA256=e7e81d82f3cd538ab0cdba494006d44aab9dd96b7f6233ce9971fb7c7916d511
+    URL https://www.openssl.org/source/openssl-1.0.2j.tar.gz
+    URL_HASH SHA256=e7aff292be21c259c6af26469c7a9b3ba26e9abaaffd325e3dccc9785256c431
 
     CONFIGURE_COMMAND ./config no-asm no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
     BUILD_COMMAND ${MAKE}
