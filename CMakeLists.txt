@@ -70,8 +70,8 @@ endif(APPLE)
 ExternalProject_Add(
   zlib
   #GIT_REPOSITORY https://github.com/madler/zlib.git
-  URL http://zlib.net/zlib-1.2.10.tar.gz
-  URL_HASH SHA256=8d7e9f698ce48787b6e1c67e6bff79e487303e66077e25cb9784ac8835978017
+  URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
+  URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DZLIB_TESTS=OFF
