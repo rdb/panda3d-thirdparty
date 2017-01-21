@@ -105,8 +105,8 @@ ExternalProject_Add(
   png
   DEPENDS zlib
   #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  URL http://www.panda3d.org/download/noversion/libpng-1.6.27.tar.gz
-  URL_HASH SHA256=c9d164ec247f426a525a7b89936694aefbc91fb7a50182b198898b8fc91174b4
+  URL https://github.com/glennrp/libpng/archive/v1.6.28.tar.gz
+  URL_HASH SHA256=a8f0b08a99e8a8b1da43c28655647ff3c6b338388d6cdd608f4ee87a85cc6e08
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
@@ -156,11 +156,8 @@ ExternalProject_Add(
 ExternalProject_Add(
   freetype
   DEPENDS zlib png
-  # Grab from git for CMake 2.8.11 fix (bug #49909)
-  GIT_REPOSITORY git://git.sv.nongnu.org/freetype/freetype2.git
-  GIT_TAG 18bd176a65c0dce5779ac610e6c09bc6d35d207b
-  #URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
-  #URL_HASH SHA256=3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a
+  URL http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
+  URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
