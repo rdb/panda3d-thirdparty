@@ -89,14 +89,14 @@ elseif(APPLE)
   ExternalProject_Add_Step(zlib remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.dylib"
                                        "<INSTALL_DIR>/lib/libz.1.dylib"
-                                       "<INSTALL_DIR>/lib/libz.1.2.8.dylib"
+                                       "<INSTALL_DIR>/lib/libz.1.2.11.dylib"
     DEPENDEES install
   )
 else()
   ExternalProject_Add_Step(zlib remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
                                        "<INSTALL_DIR>/lib/libz.so.1"
-                                       "<INSTALL_DIR>/lib/libz.so.1.2.8"
+                                       "<INSTALL_DIR>/lib/libz.so.1.2.11"
     DEPENDEES install
   )
 endif()
