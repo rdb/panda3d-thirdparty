@@ -121,7 +121,8 @@ if(NOT APPLE)
   ExternalProject_Add(
     assimp
     DEPENDS zlib
-    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_REPOSITORY https://github.com/rdb/assimp.git
+    GIT_TAG not-broken
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
