@@ -138,7 +138,7 @@ ExternalProject_Add(
   bullet
   #GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
   URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
-  URL_HASH SHA256=00d1d8f206ee85ffd171643ac8e72f9f4e0bf6dbf3d4ac55f4495cb168b51243
+  URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     -DINSTALL_LIBS=ON
