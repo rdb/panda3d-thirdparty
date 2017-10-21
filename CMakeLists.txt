@@ -170,10 +170,8 @@ ExternalProject_Add(
 
 ExternalProject_Add(
   ogg
-  URL http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.gz
-  URL_HASH SHA256=e19ee34711d7af328cb26287f4137e70630e7261b17cbe3cd41011d73a654692
-
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libogg.cmake <SOURCE_DIR>/CMakeLists.txt
+  GIT_REPOSITORY https://github.com/xiph/ogg.git
+  GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
   INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
@@ -182,13 +180,11 @@ ExternalProject_Add(
 ExternalProject_Add(
   vorbis
   DEPENDS ogg
-  URL http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.gz
-  URL_HASH SHA256=6efbcecdd3e5dfbf090341b485da9d176eb250d893e3eb378c428a2db38301ce
-
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libvorbis.cmake <SOURCE_DIR>/CMakeLists.txt
+  GIT_REPOSITORY https://github.com/xiph/vorbis.git
+  GIT_TAG 8ef0f8058854b2ef55d2d42bbe84487a9aadae12
 
   CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/vorbis
+    -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
   INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
 )
 
