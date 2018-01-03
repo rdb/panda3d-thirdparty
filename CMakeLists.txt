@@ -5,6 +5,39 @@ cmake_minimum_required(VERSION 2.8.3)
 
 include(ExternalProject)
 
+if(APPLE)
+  set(NOT_APPLE OFF)
+else()
+  set(NOT_APPLE ON)
+endif()
+if(WIN32)
+  set(NOT_WIN32 OFF)
+else()
+  set(NOT_WIN32 ON)
+endif()
+
+option(BUILD_ZLIB "Build zlib" ON)
+option(BUILD_PNG "Build zlib (requires zlib)" ON)
+option(BUILD_ASSIMP "Build assimp (requires zlib)" ${NOT_APPLE})
+option(BUILD_BULLET "Build bullet" ON)
+option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ON)
+option(BUILD_FREETYPE "Build freetype (requires harfbuzz, zlib and png)" ON)
+option(BUILD_VORBIS "Build vorbis" ON)
+option(BUILD_OPENAL "Build OpenAL" ON)
+option(BUILD_JPEG "Build libjpeg" ON)
+option(BUILD_SQUISH "Build libsquish" ON)
+option(BUILD_FCOLLADA "Build FCollada" ON)
+option(BUILD_VRPN "Build VRPN" ON)
+option(BUILD_TIFF "Build TIFF (requires zlib and jpeg)" ON)
+option(BUILD_EIGEN "Copy Eigen headers" ON)
+option(BUILD_ODE "Build ODE physics engine" ON)
+option(BUILD_ARTOOLKIT "Build ARToolKit" ON)
+option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ON)
+option(BUILD_OPENSSL "Build OpenSSL" ON)
+option(BUILD_OPENEXR "Build OpenEXR" ON)
+option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${NOT_WIN32})
+
+
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
   string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
   list(GET WORDS 2 VCVER)
@@ -67,57 +100,61 @@ if(APPLE)
   )
 endif(APPLE)
 
-ExternalProject_Add(
-  zlib
-  #GIT_REPOSITORY https://github.com/madler/zlib.git
-  URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
-  URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
+if(BUILD_ZLIB)
+  ExternalProject_Add(
+    zlib
+    #GIT_REPOSITORY https://github.com/madler/zlib.git
+    URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
+    URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DZLIB_TESTS=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/zlib
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DZLIB_TESTS=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/zlib
+  )
 
-# Remove the shared libraries, which cannot be disabled in the CMake file.
-if(WIN32)
-  ExternalProject_Add_Step(zlib remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-    DEPENDEES install
-  )
-elseif(APPLE)
-  ExternalProject_Add_Step(zlib remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.dylib"
-                                       "<INSTALL_DIR>/lib/libz.1.dylib"
-                                       "<INSTALL_DIR>/lib/libz.1.2.11.dylib"
-    DEPENDEES install
-  )
-else()
-  ExternalProject_Add_Step(zlib remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
-                                       "<INSTALL_DIR>/lib/libz.so.1"
-                                       "<INSTALL_DIR>/lib/libz.so.1.2.11"
-    DEPENDEES install
+  # Remove the shared libraries, which cannot be disabled in the CMake file.
+  if(WIN32)
+    ExternalProject_Add_Step(zlib remove_extras
+      COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+      COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+      DEPENDEES install
+    )
+  elseif(APPLE)
+    ExternalProject_Add_Step(zlib remove_extras
+      COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.dylib"
+                                         "<INSTALL_DIR>/lib/libz.1.dylib"
+                                         "<INSTALL_DIR>/lib/libz.1.2.11.dylib"
+      DEPENDEES install
+    )
+  else()
+    ExternalProject_Add_Step(zlib remove_extras
+      COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
+                                         "<INSTALL_DIR>/lib/libz.so.1"
+                                         "<INSTALL_DIR>/lib/libz.so.1.2.11"
+      DEPENDEES install
+    )
+  endif()
+endif()
+
+if(BUILD_PNG)
+  ExternalProject_Add(
+    png
+    DEPENDS zlib
+    #GIT_REPOSITORY https://github.com/glennrp/libpng.git
+    URL https://github.com/glennrp/libpng/archive/v1.6.28.tar.gz
+    URL_HASH SHA256=a8f0b08a99e8a8b1da43c28655647ff3c6b338388d6cdd608f4ee87a85cc6e08
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
+      -DPNG_SHARED=OFF
+      -DPNG_STATIC=ON
+      -DPNG_TESTS=OFF
+      -DPNG_DEBUG=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
 endif()
 
-ExternalProject_Add(
-  png
-  DEPENDS zlib
-  #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  URL https://github.com/glennrp/libpng/archive/v1.6.28.tar.gz
-  URL_HASH SHA256=a8f0b08a99e8a8b1da43c28655647ff3c6b338388d6cdd608f4ee87a85cc6e08
-
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
-    -DPNG_SHARED=OFF
-    -DPNG_STATIC=ON
-    -DPNG_TESTS=OFF
-    -DPNG_DEBUG=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/png
-)
-
-if(NOT APPLE)
+if(BUILD_ASSIMP)
   ExternalProject_Add(
     assimp
     DEPENDS zlib
@@ -134,192 +171,264 @@ if(NOT APPLE)
   )
 endif()
 
-ExternalProject_Add(
-  bullet
-  #GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-  URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
-  URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
+if(BUILD_BULLET)
+  ExternalProject_Add(
+    bullet
+    #GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+    URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
+    URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DINSTALL_LIBS=ON
-    -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
-    -DBUILD_DEMOS=OFF
-    -DBUILD_CPU_DEMOS=OFF
-    -DBUILD_OPENGL3_DEMOS=OFF
-    -DBUILD_BULLET2_DEMOS=OFF
-    -DBUILD_BULLET3=OFF
-    -DBUILD_EXTRAS=OFF
-    -DBUILD_UNIT_TESTS=OFF
-    -DINCLUDE_INSTALL_DIR:STRING=include/
-  INSTALL_DIR ${THIRDPARTY_DIR}/bullet
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DINSTALL_LIBS=ON
+      -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
+      -DBUILD_DEMOS=OFF
+      -DBUILD_CPU_DEMOS=OFF
+      -DBUILD_OPENGL3_DEMOS=OFF
+      -DBUILD_BULLET2_DEMOS=OFF
+      -DBUILD_BULLET3=OFF
+      -DBUILD_EXTRAS=OFF
+      -DBUILD_UNIT_TESTS=OFF
+      -DINCLUDE_INSTALL_DIR:STRING=include/
+    INSTALL_DIR ${THIRDPARTY_DIR}/bullet
+  )
+endif()
 
-ExternalProject_Add(
-  freetype
-  DEPENDS zlib png
-  URL http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
-  URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
+if(BUILD_HARFBUZZ)
+  # Ugh, freetype and harfbuzz depend on each other?!  Madness.  Well, we'll
+  # have to make a temporary build of freetype so we can build HarfBuzz.
+  ExternalProject_Add(
+    freetype-nohb
+    DEPENDS zlib png
+    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
+    URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
-    -DWITH_HarfBuzz=OFF
-    -DWITH_BZip2=OFF
-    -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
-  INSTALL_DIR ${THIRDPARTY_DIR}/freetype
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
+      -DWITH_HarfBuzz=OFF
+      -DWITH_BZip2=OFF
+      -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
+    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
+  )
 
-ExternalProject_Add(
-  ogg
-  GIT_REPOSITORY https://github.com/xiph/ogg.git
-  GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
+  # Use the tarball instead of git repo in order to avoid the need for ragel.
+  ExternalProject_Add(
+    harfbuzz
+    DEPENDS freetype-nohb
+    URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.4.tar.bz2
+    URL_HASH SHA256=b5d6ac8415f97f3540d73f3f91c41c5c10f8a4d76350f11a7184062aae88ac0b
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-  INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
-)
+    # It includes an add_subdirectory(test) but without a CMakeLists.txt
+    PATCH_COMMAND ${CMAKE_COMMAND} -E touch <SOURCE_DIR>/test/CMakeLists.txt
 
-ExternalProject_Add(
-  vorbis
-  DEPENDS ogg
-  GIT_REPOSITORY https://github.com/xiph/vorbis.git
-  GIT_TAG 8ef0f8058854b2ef55d2d42bbe84487a9aadae12
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
+      -DHB_HAVE_FREETYPE=ON
+      -DHB_BUILD_UTILS=OFF
+      -DHB_HAVE_INTROSPECTION=OFF
+      -DFREETYPE_INCLUDE_DIR_freetype2=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
+      -DFREETYPE_INCLUDE_DIR_ft2build=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
+    INSTALL_DIR ${THIRDPARTY_DIR}/harfbuzz
+  )
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
-  INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
-)
+  ExternalProject_Add_Step(harfbuzz move_headers
+    COMMAND ${CMAKE_COMMAND} -E rename "<INSTALL_DIR>/include/harfbuzz" "<INSTALL_DIR>/include-tmp"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/include"
+    COMMAND ${CMAKE_COMMAND} -E rename "<INSTALL_DIR>/include-tmp" "<INSTALL_DIR>/include"
+    DEPENDEES install
+  )
+endif()
 
-ExternalProject_Add(
-  openal
-  GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-  GIT_TAG e270a9784bdacecedb98312a4e2e9ef75ef7df62
+if(BUILD_FREETYPE)
+  ExternalProject_Add(
+    freetype
+    DEPENDS zlib png harfbuzz
+    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
+    URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DLIBTYPE=STATIC
-    -DALSOFT_HRTF_DEFS=OFF
-    -DALSOFT_AMBDEC_PRESETS=OFF
-    -DALSOFT_CONFIG=OFF
-    -DALSOFT_NO_CONFIG_UTIL=ON
-    -DALSOFT_EXAMPLES=OFF
-    -DALSOFT_TESTS=OFF
-    -DALSOFT_UTILS=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/openal
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png;${THIRDPARTY_DIR}/harfbuzz
+      -DWITH_HarfBuzz=ON
+      -DWITH_BZip2=OFF
+      -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
+      -DHARFBUZZ_INCLUDE_DIRS=${THIRDPARTY_DIR}/harfbuzz/include
+      -DPC_HARFBUZZ_INCLUDEDIR=${THIRDPARTY_DIR}/harfbuzz/include
+      -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
+    INSTALL_DIR ${THIRDPARTY_DIR}/freetype
+  )
+endif()
 
-ExternalProject_Add(
-  jpeg
-  URL http://www.ijg.org/files/jpegsrc.v9b.tar.gz
-  URL_HASH SHA256=240fd398da741669bf3c90366f58452ea59041cacc741a489b99f2f6a0bad052
+if(BUILD_VORBIS)
+  ExternalProject_Add(
+    ogg
+    GIT_REPOSITORY https://github.com/xiph/ogg.git
+    GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
 
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg.cmake <SOURCE_DIR>/CMakeLists.txt
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg-jconfig.h.cmake <SOURCE_DIR>/jconfig.h.cmake
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
+  )
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DBUILD_STATIC=ON
-    -DBUILD_EXECUTABLES=OFF
-    -DBUILD_TESTS=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
-)
+  ExternalProject_Add(
+    vorbis
+    DEPENDS ogg
+    GIT_REPOSITORY https://github.com/xiph/vorbis.git
+    GIT_TAG 8ef0f8058854b2ef55d2d42bbe84487a9aadae12
 
-ExternalProject_Add(
-  squish
-  DEPENDS png
-  URL https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/libsquish/squish-1.10.tar.gz
-  URL_HASH SHA256=aec3428badafdbb3b0ed1ea3a385a8029e65694282459f61b4a538963e8cada3
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
+    INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
+  )
+endif()
 
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libsquish.cmake <SOURCE_DIR>/CMakeLists.txt
+if(BUILD_OPENAL)
+  ExternalProject_Add(
+    openal
+    GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+    GIT_TAG e270a9784bdacecedb98312a4e2e9ef75ef7df62
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
-  INSTALL_DIR ${THIRDPARTY_DIR}/squish
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DLIBTYPE=STATIC
+      -DALSOFT_HRTF_DEFS=OFF
+      -DALSOFT_AMBDEC_PRESETS=OFF
+      -DALSOFT_CONFIG=OFF
+      -DALSOFT_NO_CONFIG_UTIL=ON
+      -DALSOFT_EXAMPLES=OFF
+      -DALSOFT_TESTS=OFF
+      -DALSOFT_UTILS=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/openal
+  )
+endif()
 
-ExternalProject_Add(
-  fcollada
-  GIT_REPOSITORY https://github.com/rdb/fcollada.git
+if(BUILD_JPEG)
+  ExternalProject_Add(
+    jpeg
+    URL http://www.ijg.org/files/jpegsrc.v9b.tar.gz
+    URL_HASH SHA256=240fd398da741669bf3c90366f58452ea59041cacc741a489b99f2f6a0bad052
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DBUILD_UNICODE=OFF
-    -DBUILD_TESTS=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
-)
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg.cmake <SOURCE_DIR>/CMakeLists.txt
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg-jconfig.h.cmake <SOURCE_DIR>/jconfig.h.cmake
 
-ExternalProject_Add(
-  vrpn
-  # Pull from git since 7.33 has some compile issues
-  GIT_REPOSITORY https://github.com/vrpn/vrpn.git
-  GIT_TAG 9cfc1a536f39e8815066c39a1cef0f8a515a2860
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DBUILD_STATIC=ON
+      -DBUILD_EXECUTABLES=OFF
+      -DBUILD_TESTS=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
+  )
+endif()
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DQUATLIB_BUILD_EXAMPLES=OFF
-    -DVRPN_BUILD_CLIENTS=OFF
-    -DVRPN_BUILD_CLIENT_LIBRARY=ON
-    -DVRPN_BUILD_JAVA=OFF
-    -DVRPN_BUILD_PYTHON=OFF
-    -DVRPN_BUILD_PYTHON_HANDCODED_2X=OFF
-    -DVRPN_BUILD_PYTHON_HANDCODED_3X=OFF
-    -DVRPN_BUILD_SERVERS=OFF
-    -DVRPN_BUILD_SERVER_LIBRARY=OFF
-    -DBUILD_TESTING=FALSE
-  INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
-)
+if(BUILD_SQUISH)
+  ExternalProject_Add(
+    squish
+    DEPENDS png
+    URL https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/libsquish/squish-1.10.tar.gz
+    URL_HASH SHA256=aec3428badafdbb3b0ed1ea3a385a8029e65694282459f61b4a538963e8cada3
 
-ExternalProject_Add(
-  tiff
-  DEPENDS zlib jpeg
-  URL http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz
-  URL_HASH SHA256=4d57a50907b510e3049a4bba0d7888930fdfc16ce49f1bf693e5b6247370d68c
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libsquish.cmake <SOURCE_DIR>/CMakeLists.txt
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
-    -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/tiff
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
+    INSTALL_DIR ${THIRDPARTY_DIR}/squish
+  )
+endif()
 
-# Remove the extra bin and share directories it created.
-ExternalProject_Add_Step(tiff remove_extras
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-  DEPENDEES install
-)
+if(BUILD_FCOLLADA)
+  ExternalProject_Add(
+    fcollada
+    GIT_REPOSITORY https://github.com/rdb/fcollada.git
 
-ExternalProject_Add(
-  eigen
-  URL https://bitbucket.org/eigen/eigen/get/3.2.8.tar.gz
-  URL_HASH SHA256=8d01d2d3a173c59065642a08d1dd661b399e4fed6edbda632143e7be937de7e0
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DBUILD_UNICODE=OFF
+      -DBUILD_TESTS=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
+  )
+endif()
 
-  # No need to build anything; just copy over the Eigen directory.
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
+if(BUILD_VRPN)
+  ExternalProject_Add(
+    vrpn
+    # Pull from git since 7.33 has some compile issues
+    GIT_REPOSITORY https://github.com/vrpn/vrpn.git
+    GIT_TAG 9cfc1a536f39e8815066c39a1cef0f8a515a2860
 
-  INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Eigen <INSTALL_DIR>/include/Eigen
-  INSTALL_DIR ${THIRDPARTY_DIR}/eigen
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DQUATLIB_BUILD_EXAMPLES=OFF
+      -DVRPN_BUILD_CLIENTS=OFF
+      -DVRPN_BUILD_CLIENT_LIBRARY=ON
+      -DVRPN_BUILD_JAVA=OFF
+      -DVRPN_BUILD_PYTHON=OFF
+      -DVRPN_BUILD_PYTHON_HANDCODED_2X=OFF
+      -DVRPN_BUILD_PYTHON_HANDCODED_3X=OFF
+      -DVRPN_BUILD_SERVERS=OFF
+      -DVRPN_BUILD_SERVER_LIBRARY=OFF
+      -DBUILD_TESTING=FALSE
+    INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
+  )
+endif()
 
-ExternalProject_Add(
-  ode
-  URL https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
-  URL_HASH SHA256=35e55e05c6c6ebb813a546017285a7aceedb3e8e55c8ff102e80e26bd84c5658
+if(BUILD_TIFF)
+  ExternalProject_Add(
+    tiff
+    DEPENDS zlib jpeg
+    URL http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz
+    URL_HASH SHA256=4d57a50907b510e3049a4bba0d7888930fdfc16ce49f1bf693e5b6247370d68c
 
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode.cmake <SOURCE_DIR>/CMakeLists.txt
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
+      -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/tiff
+  )
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-  INSTALL_DIR ${THIRDPARTY_DIR}/ode
-)
+  # Remove the extra bin and share directories it created.
+  ExternalProject_Add_Step(tiff remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    DEPENDEES install
+  )
+endif()
 
-ExternalProject_Add(
-  artoolkit
-  URL http://www.panda3d.org/download/noversion/ARToolKit-2.72.1.tgz
-  URL_HASH SHA256=1a49a67c6e196b0e9990e90255ce840287ac47b5a53371a68a6dd93a5425d259
+if(BUILD_EIGEN)
+  ExternalProject_Add(
+    eigen
+    URL https://bitbucket.org/eigen/eigen/get/3.2.8.tar.gz
+    URL_HASH SHA256=8d01d2d3a173c59065642a08d1dd661b399e4fed6edbda632143e7be937de7e0
 
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit-config.h.cmake <SOURCE_DIR>/include/AR/config.h.cmake
+    # No need to build anything; just copy over the Eigen directory.
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=i386$<SEMICOLON>x86_64
-  INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
-)
+    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Eigen <INSTALL_DIR>/include/Eigen
+    INSTALL_DIR ${THIRDPARTY_DIR}/eigen
+  )
+endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(BUILD_ODE)
+  ExternalProject_Add(
+    ode
+    URL https://bitbucket.org/odedevs/ode/downloads/ode-0.13.1.tar.gz
+    URL_HASH SHA256=35e55e05c6c6ebb813a546017285a7aceedb3e8e55c8ff102e80e26bd84c5658
+
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode.cmake <SOURCE_DIR>/CMakeLists.txt
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libode-config.h.cmake <SOURCE_DIR>/ode/src/config.h.cmake
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    INSTALL_DIR ${THIRDPARTY_DIR}/ode
+  )
+endif()
+
+if(BUILD_ARTOOLKIT)
+  ExternalProject_Add(
+    artoolkit
+    URL http://www.panda3d.org/download/noversion/ARToolKit-2.72.1.tgz
+    URL_HASH SHA256=1a49a67c6e196b0e9990e90255ce840287ac47b5a53371a68a6dd93a5425d259
+
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit-config.h.cmake <SOURCE_DIR>/include/AR/config.h.cmake
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=i386$<SEMICOLON>x86_64
+    INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
+  )
+endif()
+
+if(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ExternalProject_Add(
       nvidiacg
@@ -345,7 +454,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
     )
   endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   ExternalProject_Add(
     nvidiacg
     URL http://www.panda3d.org/download/noversion/NVIDIA_Cg.tgz
@@ -354,8 +463,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     BUILD_COMMAND ""
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Library/Frameworks/Cg.framework <INSTALL_DIR>/Cg.framework
     INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
-  )    
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  )
+elseif(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     ExternalProject_Add(
       nvidiacg
@@ -381,7 +490,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   endif()
 endif()
 
-if(MSVC)
+if(BUILD_OPENSSL AND MSVC)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(ssl_config VC-WIN64A)
   else()
@@ -401,7 +510,7 @@ if(MSVC)
     INSTALL_COMMAND nmake -f ms\\nt.mak install
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
-elseif(NOT APPLE)
+elseif(BUILD_OPENSSL AND NOT APPLE)
   ExternalProject_Add(
     openssl
     URL https://www.openssl.org/source/openssl-1.0.2j.tar.gz
@@ -415,7 +524,7 @@ elseif(NOT APPLE)
   )
 endif()
 
-if(NOT APPLE)
+if(BUILD_OPENSSL AND NOT APPLE)
   # Delete the bin and ssl directories in the install folder.
   ExternalProject_Add_Step(openssl remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
@@ -424,28 +533,30 @@ if(NOT APPLE)
   )
 endif()
 
-ExternalProject_Add(
-  openexr
-  DEPENDS zlib
-  URL https://github.com/openexr/openexr/archive/v2.2.0.tar.gz
-  URL_HASH SHA256=8c219754af33fee199bdd72a0441f73dd4b3ce5363ac3c5cd7b2c6306f5442a6
+if(BUILD_OPENEXR)
+  ExternalProject_Add(
+    openexr
+    DEPENDS zlib
+    URL https://github.com/openexr/openexr/archive/v2.2.0.tar.gz
+    URL_HASH SHA256=8c219754af33fee199bdd72a0441f73dd4b3ce5363ac3c5cd7b2c6306f5442a6
 
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
 
-  CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
-    -DNAMESPACE_VERSIONING=OFF
-  INSTALL_DIR ${THIRDPARTY_DIR}/openexr
-)
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
+      -DNAMESPACE_VERSIONING=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/openexr
+  )
 
-# Remove the extra bin and share directories it created.
-ExternalProject_Add_Step(openexr remove_extras
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-  DEPENDEES install
-)
+  # Remove the extra bin and share directories it created.
+  ExternalProject_Add_Step(openexr remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    DEPENDEES install
+  )
+endif()
 
-if(NOT WIN32)
+if(BUILD_FFMPEG)
   EXTERNALPROJECT_ADD(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
