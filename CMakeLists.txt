@@ -225,6 +225,7 @@ if(BUILD_HARFBUZZ)
       -DHB_HAVE_FREETYPE=ON
       -DHB_BUILD_UTILS=OFF
       -DHB_HAVE_INTROSPECTION=OFF
+      -DHB_HAVE_CORETEXT=OFF # macOS 10.8+
       -DFREETYPE_INCLUDE_DIR_freetype2=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
       -DFREETYPE_INCLUDE_DIR_ft2build=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
     INSTALL_DIR ${THIRDPARTY_DIR}/harfbuzz
