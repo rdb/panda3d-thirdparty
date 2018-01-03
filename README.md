@@ -25,12 +25,14 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] ffmpeg (except Windows)
 - [ ] fmodex
 - [x] freetype
+- [x] harfbuzz
 - [x] jpeg
 - [x] nvidiacg
 - [x] ode
 - [x] openal
 - [x] openexr
 - [x] openssl (except Mac)
+- [ ] opus
 - [x] png
 - [ ] rocket
 - [x] squish
@@ -38,3 +40,5 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] vorbis
 - [x] vrpn
 - [x] zlib
+
+A package can be explicitly disabled using the `BUILD_*` options, eg. `-DBUILD_VRPN=OFF` disables building VRPN.  Note that some packages have dependencies on other packages, so not all combinations are valid.
