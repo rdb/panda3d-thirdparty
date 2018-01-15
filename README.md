@@ -22,7 +22,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] bullet
 - [x] eigen
 - [x] fcollada
-- [x] ffmpeg (except Windows)
+- [x] ffmpeg
 - [ ] fmodex
 - [x] freetype
 - [x] harfbuzz
