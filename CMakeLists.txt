@@ -599,6 +599,12 @@ if(BUILD_FFMPEG AND WIN32)
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/bin <INSTALL_DIR>/bin
     INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
   )
+  ExternalProject_Add_Step(ffmpeg-shared remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/bin/ffmpeg.exe"
+                                       "<INSTALL_DIR>/bin/ffplay.exe"
+                                       "<INSTALL_DIR>/bin/ffprobe.exe"
+    DEPENDEES install
+  )
 
   if (CMAKE_GENERATOR MATCHES "^Visual Studio 10 ")
     # Copy over the custom inttypes.h file.
