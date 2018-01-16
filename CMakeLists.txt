@@ -217,8 +217,9 @@ if(BUILD_HARFBUZZ)
     URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.4.tar.bz2
     URL_HASH SHA256=b5d6ac8415f97f3540d73f3f91c41c5c10f8a4d76350f11a7184062aae88ac0b
 
-    # It includes an add_subdirectory(test) but without a CMakeLists.txt
-    PATCH_COMMAND ${CMAKE_COMMAND} -E touch <SOURCE_DIR>/test/CMakeLists.txt
+    # The original includes an add_subdirectory(test) but without a CMakeLists.txt
+    # Also, it's not compatible with CMake 2.8 except for a minor tweak.
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/harfbuzz.cmake <SOURCE_DIR>/CMakeLists.txt
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
