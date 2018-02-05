@@ -32,6 +32,7 @@ option(BUILD_BULLET "Build bullet" ${DEFAULT_ENABLE})
 option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ${DEFAULT_ENABLE})
 option(BUILD_FREETYPE "Build freetype (requires harfbuzz, zlib and png)" ${DEFAULT_ENABLE})
 option(BUILD_VORBIS "Build vorbis" ${DEFAULT_ENABLE})
+option(BUILD_OPUS "Build opus" ${DEFAULT_ENABLE})
 option(BUILD_OPENAL "Build OpenAL" ${DEFAULT_ENABLE})
 option(BUILD_JPEG "Build libjpeg" ${DEFAULT_ENABLE})
 option(BUILD_SQUISH "Build libsquish" ${DEFAULT_ENABLE})
@@ -293,6 +294,46 @@ if(BUILD_VORBIS)
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
+  )
+endif()
+
+if(BUILD_OPUS)
+  ExternalProject_Add(
+    ogg-opus
+    GIT_REPOSITORY https://github.com/xiph/ogg.git
+    GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    INSTALL_DIR ${THIRDPARTY_DIR}/opus
+  )
+
+  ExternalProject_Add(
+    opus
+    GIT_REPOSITORY https://github.com/xnorpx/opus.git
+    GIT_TAG e58822ef814b9bd9baeabecd7024aa7a6d4b5adf # PR#100
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    INSTALL_DIR ${THIRDPARTY_DIR}/opus
+  )
+
+  # copy over pkg-config file
+  ExternalProject_Add_Step(opus copy_pkg_config
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different <SOURCE_DIR>/opus.pc.in <INSTALL_DIR>/lib/pkgconfig/opus.pc.in
+    DEPENDEES install
+  )
+
+  ExternalProject_Add(
+    opusfile
+    DEPENDS ogg-opus opus
+    GIT_REPOSITORY https://github.com/xiph/opusfile.git
+    GIT_TAG b7c2ed3bafd9b08cd5d276894ca18fb58bcbfbc9 #0.11
+
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libopusfile.cmake <SOURCE_DIR>/CMakeLists.txt
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DOGG_ROOT=${THIRDPARTY_DIR}/opus
+      -DOPUS_ROOT=${THIRDPARTY_DIR}/opus
+    INSTALL_DIR ${THIRDPARTY_DIR}/opus
   )
 endif()
 
