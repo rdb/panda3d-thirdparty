@@ -544,8 +544,10 @@ if(BUILD_OPENEXR)
   ExternalProject_Add(
     openexr
     DEPENDS zlib
-    URL https://github.com/openexr/openexr/archive/v2.2.0.tar.gz
-    URL_HASH SHA256=8c219754af33fee199bdd72a0441f73dd4b3ce5363ac3c5cd7b2c6306f5442a6
+    GIT_REPOSITORY https://github.com/openexr/openexr.git
+    GIT_TAG dcaf5fdb4d1244d8e60a58832cfe9c54734a2257 #v2.2.1
+    URL https://github.com/openexr/openexr/archive/v2.2.1.tar.gz
+    URL_HASH SHA256=63ebc7677d63ad59f1ec205d149dff1da31e7e3c8e78e944458b1d371c7e2f3c
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
 
