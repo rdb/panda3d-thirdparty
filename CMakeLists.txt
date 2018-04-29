@@ -141,10 +141,12 @@ if(BUILD_PNG)
   ExternalProject_Add(
     png
     DEPENDS zlib
+
+    # Please note that libpng 1.6.32+ requires CMake 3.0.2
     GIT_REPOSITORY https://github.com/glennrp/libpng.git
-    GIT_TAG b78804f9a2568b270ebd30eca954ef7447ba92f7 #v1.6.34
-    #URL https://github.com/glennrp/libpng/archive/v1.6.34.tar.gz
-    #URL_HASH SHA256=e45ce5f68b1d80e2cb9a2b601605b374bdf51e1798ef1c2c2bd62131dfcf9eef
+    GIT_TAG 9fcb846402d8692d25cb5286777a832ca852fa44 #v1.6.31
+    #URL https://github.com/glennrp/libpng/archive/v1.6.31.tar.gz
+    #URL_HASH SHA256=79c0391804c83a6e0b722c20be7c3a27aeb2fe09afbc3028abad243444c98aa0
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
