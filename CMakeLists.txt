@@ -103,9 +103,10 @@ endif(APPLE)
 if(BUILD_ZLIB)
   ExternalProject_Add(
     zlib
-    #GIT_REPOSITORY https://github.com/madler/zlib.git
-    URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
-    URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
+    GIT_REPOSITORY https://github.com/madler/zlib.git
+    GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f #v1.2.11
+    #URL https://github.com/madler/zlib/archive/v1.2.11.tar.gz
+    #URL_HASH SHA256=629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DZLIB_TESTS=OFF
@@ -140,9 +141,10 @@ if(BUILD_PNG)
   ExternalProject_Add(
     png
     DEPENDS zlib
-    #GIT_REPOSITORY https://github.com/glennrp/libpng.git
-    URL https://github.com/glennrp/libpng/archive/v1.6.28.tar.gz
-    URL_HASH SHA256=a8f0b08a99e8a8b1da43c28655647ff3c6b338388d6cdd608f4ee87a85cc6e08
+    GIT_REPOSITORY https://github.com/glennrp/libpng.git
+    GIT_TAG b78804f9a2568b270ebd30eca954ef7447ba92f7 #v1.6.34
+    #URL https://github.com/glennrp/libpng/archive/v1.6.34.tar.gz
+    #URL_HASH SHA256=e45ce5f68b1d80e2cb9a2b601605b374bdf51e1798ef1c2c2bd62131dfcf9eef
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
@@ -174,9 +176,10 @@ endif()
 if(BUILD_BULLET)
   ExternalProject_Add(
     bullet
-    #GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-    URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
-    URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
+    GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+    GIT_TAG 2fb92bc40c16e4da5a9018479d4a8e1899702ab8 #v2.83.7
+    #URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
+    #URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DINSTALL_LIBS=ON
