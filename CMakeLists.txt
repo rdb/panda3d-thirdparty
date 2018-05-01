@@ -292,6 +292,11 @@ if(BUILD_OPENAL)
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
     GIT_TAG e270a9784bdacecedb98312a4e2e9ef75ef7df62
 
+    # From CMake 3.11, "CHECK_INCLUDE_FILES" macro checks additional arguments, which causes CMake error.
+    # master branch has already this patch:
+    # https://github.com/kcat/openal-soft/commit/cae4b1a062b53dd25eba7caa41622be730106749
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openal.cmake <SOURCE_DIR>/CMakeLists.txt
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DLIBTYPE=STATIC
       -DALSOFT_HRTF_DEFS=OFF
