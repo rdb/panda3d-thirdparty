@@ -162,8 +162,8 @@ if(BUILD_ASSIMP)
   ExternalProject_Add(
     assimp
     DEPENDS zlib
-    GIT_REPOSITORY https://github.com/rdb/assimp.git
-    GIT_TAG not-broken
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_TAG 80799bdbf90ce626475635815ee18537718a05b1 #v4.1.0
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
