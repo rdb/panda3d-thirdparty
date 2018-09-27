@@ -290,7 +290,7 @@ if(BUILD_OPENAL)
   ExternalProject_Add(
     openal
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG e270a9784bdacecedb98312a4e2e9ef75ef7df62
+    GIT_TAG 96aacac10ca852fc30fd7f72f3e3c6ddbe02858c    # 1.19.0
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DLIBTYPE=STATIC
@@ -301,6 +301,7 @@ if(BUILD_OPENAL)
       -DALSOFT_EXAMPLES=OFF
       -DALSOFT_TESTS=OFF
       -DALSOFT_UTILS=OFF
+      -DALSOFT_ENABLE_SSE2_CODEGEN=OFF      # for only 32-bit
     INSTALL_DIR ${THIRDPARTY_DIR}/openal
   )
 endif()
