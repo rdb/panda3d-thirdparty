@@ -290,7 +290,7 @@ if(BUILD_OPENAL)
   ExternalProject_Add(
     openal
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG 96aacac10ca852fc30fd7f72f3e3c6ddbe02858c    # 1.19.0
+    GIT_TAG 6761218e51699f46bf25c377e65b3e9ea5e434b9 # 1.19.1
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DLIBTYPE=STATIC
