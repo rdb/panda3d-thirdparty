@@ -46,8 +46,8 @@ jobs:
   # install
   - task: CopyFiles@2
     inputs:
-      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc14'
-      targetFolder: '$(Build.BinariesDirectory)/thirdparty'
+      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc15'
+      targetFolder: '$(Build.BinariesDirectory)/thirdparty/win-libs-vc14'
 
   # packaging
   - task: ArchiveFiles@2
