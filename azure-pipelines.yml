@@ -1,0 +1,61 @@
+variables:
+  REPO_NAME: 'panda3d-thirdparty'
+
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'VS2017-Win2016'
+
+  strategy:
+    matrix:
+      vc140-x86-release:
+        TARGET_ARCHITECTURE: '86'
+        BUILD_TOOLSET_VERSION: '140'
+        BUILD_CONFIGURATION: 'release'
+        CMAKE_GENERATOR: 'Visual Studio 15 2017'
+      vc140-x64-release:
+        TARGET_ARCHITECTURE: '64'
+        BUILD_TOOLSET_VERSION: '140'
+        BUILD_CONFIGURATION: 'release'
+        CMAKE_GENERATOR: 'Visual Studio 15 2017 Win64'
+      vc141-x86-release:
+        TARGET_ARCHITECTURE: '86'
+        BUILD_TOOLSET_VERSION: '141'
+        BUILD_CONFIGURATION: 'release'
+        CMAKE_GENERATOR: 'Visual Studio 15 2017'
+      vc141-x64-release:
+        TARGET_ARCHITECTURE: '64'
+        BUILD_TOOLSET_VERSION: '141'
+        BUILD_CONFIGURATION: 'release'
+        CMAKE_GENERATOR: 'Visual Studio 15 2017 Win64'
+
+  steps:
+  # configure & generate
+  - task: CMake@1
+    inputs:
+      cmakeArgs: .. -G "$(CMAKE_GENERATOR)" -Wno-dev -T "v$(BUILD_TOOLSET_VERSION),host=x64" -DCMAKE_INSTALL_PREFIX="$(Build.BinariesDirectory)/thirdparty" -Dbuild_mixfordebug=$(BUILD_MIX_FOR_DEBUG)
+
+  # build
+  - task: CMake@1
+    inputs:
+      cmakeArgs: --build . --config release
+
+  # tests
+  #- task
+
+  # install
+  - task: CMake@1
+    inputs:
+      cmakeArgs: --build . --config release --target install
+
+  # packaging
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '$(Build.BinariesDirectory)/thirdparty'
+      archiveType: '7z'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/thirdparty.7z'
+
+  # publish
+  - task: PublishBuildArtifacts@1
+    inputs:
+      artifactName: '$(REPO_NAME)-vc$(BUILD_TOOLSET_VERSION)-x$(TARGET_ARCHITECTURE)-$(BUILD_CONFIGURATION)'
