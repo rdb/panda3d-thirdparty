@@ -9,22 +9,22 @@ jobs:
   strategy:
     matrix:
       vc140-x86-release:
-        TARGET_ARCHITECTURE: '86'
+        ARCHITECTURE_SUFFIX: ''
         BUILD_TOOLSET_VERSION: '140'
         BUILD_CONFIGURATION: 'release'
         CMAKE_GENERATOR: 'Visual Studio 15 2017'
       vc140-x64-release:
-        TARGET_ARCHITECTURE: '64'
+        ARCHITECTURE_SUFFIX: '-x64'
         BUILD_TOOLSET_VERSION: '140'
         BUILD_CONFIGURATION: 'release'
         CMAKE_GENERATOR: 'Visual Studio 15 2017 Win64'
       vc141-x86-release:
-        TARGET_ARCHITECTURE: '86'
+        ARCHITECTURE_SUFFIX: ''
         BUILD_TOOLSET_VERSION: '141'
         BUILD_CONFIGURATION: 'release'
         CMAKE_GENERATOR: 'Visual Studio 15 2017'
       vc141-x64-release:
-        TARGET_ARCHITECTURE: '64'
+        ARCHITECTURE_SUFFIX: '-x64'
         BUILD_TOOLSET_VERSION: '141'
         BUILD_CONFIGURATION: 'release'
         CMAKE_GENERATOR: 'Visual Studio 15 2017 Win64'
@@ -46,8 +46,8 @@ jobs:
   # install
   - task: CopyFiles@2
     inputs:
-      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc15'
-      targetFolder: '$(Build.BinariesDirectory)/thirdparty/win-libs-vc14'
+      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc15$(ARCHITECTURE_SUFFIX)'
+      targetFolder: '$(Build.BinariesDirectory)/thirdparty/win-libs-vc14$(ARCHITECTURE_SUFFIX)'
 
   # packaging
   - task: ArchiveFiles@2
@@ -59,4 +59,4 @@ jobs:
   # publish
   - task: PublishBuildArtifacts@1
     inputs:
-      artifactName: '$(REPO_NAME)-vc$(BUILD_TOOLSET_VERSION)-x$(TARGET_ARCHITECTURE)-$(BUILD_CONFIGURATION)'
+      artifactName: '$(REPO_NAME)-vc$(BUILD_TOOLSET_VERSION)$(ARCHITECTURE_SUFFIX)-$(BUILD_CONFIGURATION)'
