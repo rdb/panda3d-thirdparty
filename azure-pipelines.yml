@@ -33,7 +33,7 @@ jobs:
   # configure & generate
   - task: CMake@1
     inputs:
-      cmakeArgs: .. -G "$(CMAKE_GENERATOR)" -Wno-dev -T "v$(BUILD_TOOLSET_VERSION),host=x64" -DCMAKE_INSTALL_PREFIX="$(Build.BinariesDirectory)/thirdparty" -Dbuild_mixfordebug=$(BUILD_MIX_FOR_DEBUG)
+      cmakeArgs: .. -G "$(CMAKE_GENERATOR)" -Wno-dev -T "v$(BUILD_TOOLSET_VERSION),host=x64"
 
   # build
   - task: CMake@1
@@ -44,9 +44,10 @@ jobs:
   #- task
 
   # install
-  - task: CMake@1
+  - task: CopyFiles@2
     inputs:
-      cmakeArgs: --build . --config release --target install
+      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc14'
+      targetFolder: '$(Build.BinariesDirectory)/thirdparty'
 
   # packaging
   - task: ArchiveFiles@2
