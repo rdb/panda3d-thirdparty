@@ -163,7 +163,7 @@ if(BUILD_ASSIMP)
     assimp
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/assimp/assimp.git
-    GIT_TAG 80799bdbf90ce626475635815ee18537718a05b1 #v4.1.0
+    GIT_TAG 837a0742c4c7b4ce470516d9b7586570afe741ea
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
