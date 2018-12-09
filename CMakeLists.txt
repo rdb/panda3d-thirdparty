@@ -477,9 +477,12 @@ elseif(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     nvidiacg
     URL http://www.panda3d.org/download/noversion/NVIDIA_Cg.tgz
     URL_HASH SHA256=cd6b12cca647749101b0286353095c7435251097d1aed0171cfc8afdcededd29
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND chmod -R u+w <SOURCE_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Library/Frameworks/Cg.framework <INSTALL_DIR>/Cg.framework
+
+    CONFIGURE_COMMAND chmod -R u+w <SOURCE_DIR>
+    BUILD_COMMAND install_name_tool -id @loader_path/../Frameworks/Cg.framework/Cg <SOURCE_DIR>/Library/Frameworks/Cg.framework/Cg
+    INSTALL_COMMAND rm -rf "<INSTALL_DIR>/Cg.framework"
+            COMMAND cp -R <SOURCE_DIR>/Library/Frameworks/Cg.framework <INSTALL_DIR>/Cg.framework
+
     INSTALL_DIR ${THIRDPARTY_DIR}/nvidiacg
   )
 elseif(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
