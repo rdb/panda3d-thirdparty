@@ -31,7 +31,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] ode
 - [x] openal
 - [x] openexr
-- [x] openssl (except Mac)
+- [x] openssl
 - [ ] opus
 - [x] png
 - [ ] rocket

@@ -540,6 +540,47 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
 
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
+elseif(BUILD_OPENSSL AND APPLE)
+  set(ssl_flags ${CMAKE_C_FLAGS}
+                no-asm no-shared no-dso
+                -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}
+                -isysroot=${CMAKE_OSX_SYSROOT}
+                -I/usr/include)
+
+  ExternalProject_Add(
+    openssl-i386
+    URL https://www.openssl.org/source/openssl-1.0.2q.tar.gz
+    URL_HASH SHA256=5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684
+
+    CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc ${ssl_flags}
+    BUILD_COMMAND make build_libs
+    BUILD_IN_SOURCE 1
+
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Add(
+    openssl
+    DEPENDS openssl-i386
+    URL https://www.openssl.org/source/openssl-1.0.2q.tar.gz
+    URL_HASH SHA256=5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684
+
+    CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
+    BUILD_COMMAND make build_libs
+    BUILD_IN_SOURCE 1
+
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Add_Step(openssl combine
+    COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include "${THIRDPARTY_DIR}/openssl/include"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/openssl/lib"
+    COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a"
+            -arch i386 "${CMAKE_CURRENT_BINARY_DIR}/openssl-i386-prefix/src/openssl-i386/libcrypto.a"
+            -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libcrypto.a"
+    COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libssl.a"
+            -arch i386 "${CMAKE_CURRENT_BINARY_DIR}/openssl-i386-prefix/src/openssl-i386/libssl.a"
+            -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libssl.a"
+    DEPENDEES install
+  )
 endif()
 
 if(BUILD_OPENSSL AND NOT APPLE)
