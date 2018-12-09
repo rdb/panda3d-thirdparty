@@ -163,6 +163,7 @@ if(BUILD_PNG)
       -DPNG_STATIC=ON
       -DPNG_TESTS=OFF
       -DPNG_DEBUG=OFF
+      -DAWK= # Needed for multi-arch build on macOS
     INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
 endif()
