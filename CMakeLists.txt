@@ -543,9 +543,11 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
                 no-asm no-shared no-dso
-                -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}
-                -isysroot=${CMAKE_OSX_SYSROOT}
-                -I/usr/include)
+                -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
+
+  if(CMAKE_OSX_SYSROOT)
+    set(ssl_flags ${ssl_flags} -isysroot=${CMAKE_OSX_SYSROOT} -I/usr/include)
+  endif()
 
   ExternalProject_Add(
     openssl-i386
