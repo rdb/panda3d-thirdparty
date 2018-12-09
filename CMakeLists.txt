@@ -3,6 +3,15 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 
+# Set defaults.  Must be before project().
+if(APPLE)
+  set(CMAKE_OSX_ARCHITECTURES "x86_64;i386" CACHE STRING "")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.6" CACHE STRING "")
+  set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${CMAKE_OSX_DEPLOYMENT_TARGET}.sdk/ CACHE PATH "")
+endif()
+
+project(panda3d-thirdparty)
+
 include(ExternalProject)
 
 set(DEFAULT_ENABLE ON)
