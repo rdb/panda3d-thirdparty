@@ -372,6 +372,14 @@ if(BUILD_JPEG)
       -DBUILD_TESTS=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
   )
+
+  if(WIN32)
+    set(JPEG_LIBRARY ${THIRDPARTY_DIR}/jpeg/lib/jpeg-static.lib)
+  else()
+    set(JPEG_LIBRARY ${THIRDPARTY_DIR}/jpeg/lib/libjpeg.a)
+  endif()
+else()
+  set(JPEG_LIBRARY JPEG_LIBRARY-NOTFOUND)
 endif()
 
 if(BUILD_SQUISH)
@@ -432,6 +440,8 @@ if(BUILD_TIFF)
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
+      -DJPEG_INCLUDE_DIR=${THIRDPARTY_DIR}/jpeg/include
+      -DJPEG_LIBRARY=${JPEG_LIBRARY}
       -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/tiff
   )
