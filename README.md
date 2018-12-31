@@ -32,7 +32,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] openal
 - [x] openexr
 - [x] openssl
-- [ ] opus
+- [x] opus
 - [x] png
 - [ ] rocket
 - [x] squish
