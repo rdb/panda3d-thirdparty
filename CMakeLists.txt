@@ -571,8 +571,8 @@ if(BUILD_OPENSSL AND MSVC)
 
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.2k.tar.gz
-    URL_HASH SHA256=6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0
+    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
+    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
     CONFIGURE_COMMAND perl Configure ${ssl_config} no-asm no-shared --prefix=<INSTALL_DIR>
               COMMAND ${CMAKE_CURRENT_LIST_DIR}/openssl-ms.bat ${ssl_config}
@@ -585,8 +585,8 @@ if(BUILD_OPENSSL AND MSVC)
 elseif(BUILD_OPENSSL AND NOT APPLE)
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.2q.tar.gz
-    URL_HASH SHA256=5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684
+    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
+    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
     CONFIGURE_COMMAND ./config no-asm no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
     BUILD_COMMAND ${MAKE}
@@ -605,8 +605,8 @@ elseif(BUILD_OPENSSL AND APPLE)
 
   ExternalProject_Add(
     openssl-i386
-    URL https://www.openssl.org/source/openssl-1.0.2q.tar.gz
-    URL_HASH SHA256=5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684
+    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
+    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
     CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc ${ssl_flags}
     BUILD_COMMAND make build_libs
@@ -617,8 +617,8 @@ elseif(BUILD_OPENSSL AND APPLE)
   ExternalProject_Add(
     openssl
     DEPENDS openssl-i386
-    URL https://www.openssl.org/source/openssl-1.0.2q.tar.gz
-    URL_HASH SHA256=5744cfcbcec2b1b48629f7354203bc1e5e9b5466998bbccc5b5fcde3b18eb684
+    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
+    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
     CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
     BUILD_COMMAND make build_libs
