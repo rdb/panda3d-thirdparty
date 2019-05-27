@@ -263,9 +263,25 @@ if(BUILD_HARFBUZZ)
 endif()
 
 if(BUILD_FREETYPE)
+  if(APPLE)
+    # Apple's bundled libicucore.dylib appears to be private, so we'll need to
+    # build our own.
+    ExternalProject_Add(
+      icu
+      URL https://github.com/unicode-org/icu/releases/download/release-64-2/icu4c-64_2-src.tgz
+      URL_HASH SHA256=627d5d8478e6d96fc8c90fed4851239079a561a6a8b9e48b0892f24e82d31d6c
+
+      CONFIGURE_COMMAND "../icu/source/configure"
+      BUILD_COMMAND "make"
+      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/icu
+    )
+    set(icu_dep "icu")
+    set(icu_lib_hint "-DPC_HARFBUZZ_ICU_LIBDIR=${THIRDPARTY_DIR}/icu/lib")
+  endif()
+
   ExternalProject_Add(
     freetype
-    DEPENDS zlib png harfbuzz
+    DEPENDS zlib png harfbuzz ${icu_dep}
     URL https://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
@@ -277,6 +293,7 @@ if(BUILD_FREETYPE)
       -DHARFBUZZ_INCLUDE_DIRS=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_INCLUDEDIR=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
+      ${icu_lib_hint}
     INSTALL_DIR ${THIRDPARTY_DIR}/freetype
   )
 endif()
