@@ -5,9 +5,15 @@ cmake_minimum_required(VERSION 2.8.3)
 
 # Set defaults.  Must be before project().
 if(APPLE)
-  set(CMAKE_OSX_ARCHITECTURES "x86_64;i386" CACHE STRING "")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.6" CACHE STRING "")
-  set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${CMAKE_OSX_DEPLOYMENT_TARGET}.sdk/ CACHE PATH "")
+  # For some reason CMake's IOS variable doesn't work?
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(CMAKE_OSX_ARCHITECTURES "armv7;armv7s;arm64" CACHE STRING "")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "8.0" CACHE STRING "")
+  else()
+    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+  endif()
 endif()
 
 project(panda3d-thirdparty)
@@ -492,7 +498,7 @@ if(BUILD_ARTOOLKIT)
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit.cmake <SOURCE_DIR>/CMakeLists.txt
           COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/artoolkit-config.h.cmake <SOURCE_DIR>/include/AR/config.h.cmake
 
-    CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=i386$<SEMICOLON>x86_64
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
   )
 endif()
@@ -600,23 +606,11 @@ elseif(BUILD_OPENSSL AND APPLE)
                 -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
 
   if(CMAKE_OSX_SYSROOT)
-    set(ssl_flags ${ssl_flags} -isysroot=${CMAKE_OSX_SYSROOT} -I/usr/include)
+    set(ssl_flags ${ssl_flags} -I/usr/include)
   endif()
 
   ExternalProject_Add(
-    openssl-i386
-    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
-    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
-
-    CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc ${ssl_flags}
-    BUILD_COMMAND make build_libs
-    BUILD_IN_SOURCE 1
-
-    INSTALL_COMMAND ""
-  )
-  ExternalProject_Add(
     openssl
-    DEPENDS openssl-i386
     URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
     URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
@@ -630,10 +624,8 @@ elseif(BUILD_OPENSSL AND APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include "${THIRDPARTY_DIR}/openssl/include"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/openssl/lib"
     COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a"
-            -arch i386 "${CMAKE_CURRENT_BINARY_DIR}/openssl-i386-prefix/src/openssl-i386/libcrypto.a"
             -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libcrypto.a"
     COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libssl.a"
-            -arch i386 "${CMAKE_CURRENT_BINARY_DIR}/openssl-i386-prefix/src/openssl-i386/libssl.a"
             -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libssl.a"
     DEPENDEES install
   )
