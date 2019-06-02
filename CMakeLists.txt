@@ -41,6 +41,7 @@ if(APPLE)
   set(NOT_APPLE OFF)
     if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
       set(NOT_IOS OFF)
+      set(IOS ON)
     endif()
 else()
   set(NOT_APPLE ${DEFAULT_ENABLE})
@@ -68,6 +69,7 @@ option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ${NOT_IOS})
 option(BUILD_OPENSSL "Build OpenSSL" ${DEFAULT_ENABLE})
 option(BUILD_OPENEXR "Build OpenEXR" ${NOT_IOS})
 option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAULT_ENABLE})
+option(BUILD_PYTHON "Build Python" ${IOS})
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
@@ -137,7 +139,8 @@ if(APPLE)
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
       -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
     )
-  else()
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL iOS)
     set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
       -DCMAKE_MACOSX_BUNDLE=${CMAKE_MACOSX_BUNDLE}
@@ -834,4 +837,42 @@ elseif(BUILD_FFMPEG)
 
     INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
   )
+endif()
+
+if(BUILD_PYTHON)
+  if(CMAKE_CROSSCOMPILING)
+    ExternalProject_Add(
+      python-x86
+      GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+
+      BUILD_COMMAND ${CMAKE_COMMAND} --build . --target _freeze_importlib
+      INSTALL_COMMAND cp <BINARY_DIR>/CMakeBuild/libpython/NativeExports.cmake ${THIRDPARTY_DIR}/python/NativeExports.cmake
+
+    )
+    ExternalProject_Add(
+      python
+      DEPENDS python-x86
+      GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+
+      CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+                 -DPYTHON_VERSION=3.6.6 -DWITH_STATIC_DEPENDENCIES=ON
+                 -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+                 -DINSTALL_MANUAL=OFF -DINSTALL_TESTS=OFF
+                 -DIMPORT_NATIVE_EXECUTABLES=${THIRDPARTY_DIR}/python/NativeExports.cmake
+
+      INSTALL_DIR ${THIRDPARTY_DIR}/python
+    )
+  else()
+    ExternalProject_Add(
+      python
+      GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+
+      CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+                 -DPYTHON_VERSION=3.6.6 -DWITH_STATIC_DEPENDENCIES=ON
+                 -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+                 -DINSTALL_MANUAL=OFF -DINSTALL_TESTS=OFF
+
+      INSTALL_DIR ${THIRDPARTY_DIR}/python
+    )
+  endif()
 endif()
