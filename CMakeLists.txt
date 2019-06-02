@@ -3,12 +3,15 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 
+get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 # Set defaults.  Must be before project().
 if(APPLE)
-  # For some reason CMake's IOS variable doesn't work?
   if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    set(CMAKE_OSX_ARCHITECTURES "armv7;armv7s;arm64" CACHE STRING "")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "8.0" CACHE STRING "")
+    if(NOT IS_MULTICONFIG)
+      set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
+      set(CMAKE_OSX_DEPLOYMENT_TARGET "8.0" CACHE STRING "")
+    endif()
   else()
     set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "")
@@ -20,6 +23,15 @@ project(panda3d-thirdparty)
 
 include(ExternalProject)
 
+if (CMAKE_SYSTEM_NAME STREQUAL iOS)
+  list(LENGTH ${CMAKE_OSX_ARCHITECTURES} num_archs)
+  if(${num_archs} GREATER 1)
+    message(FATAL_ERROR "If you want to build for multiple architectures at
+                         once, you need to build each one individually then
+                         lipo them together yourself.")
+  endif()
+endif()
+
 set(DEFAULT_ENABLE ON)
 if(DISABLE_ALL)
   set(DEFAULT_ENABLE OFF)
@@ -27,8 +39,12 @@ endif()
 
 if(APPLE)
   set(NOT_APPLE OFF)
+    if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+      set(NOT_IOS OFF)
+    endif()
 else()
   set(NOT_APPLE ${DEFAULT_ENABLE})
+  set(NOT_IOS ${DEFAULT_ENABLE})
 endif()
 
 option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
@@ -39,18 +55,18 @@ option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ${DEFAULT_ENABLE})
 option(BUILD_FREETYPE "Build freetype (requires harfbuzz, zlib and png)" ${DEFAULT_ENABLE})
 option(BUILD_VORBIS "Build vorbis" ${DEFAULT_ENABLE})
 option(BUILD_OPUS "Build opus" ${DEFAULT_ENABLE})
-option(BUILD_OPENAL "Build OpenAL" ${DEFAULT_ENABLE})
+option(BUILD_OPENAL "Build OpenAL" ${NOT_IOS})
 option(BUILD_JPEG "Build libjpeg" ${DEFAULT_ENABLE})
 option(BUILD_SQUISH "Build libsquish" ${DEFAULT_ENABLE})
-option(BUILD_FCOLLADA "Build FCollada" ${DEFAULT_ENABLE})
-option(BUILD_VRPN "Build VRPN" ${DEFAULT_ENABLE})
+option(BUILD_FCOLLADA "Build FCollada" ${NOT_IOS})
+option(BUILD_VRPN "Build VRPN" ${NOT_IOS})
 option(BUILD_TIFF "Build TIFF (requires zlib and jpeg)" ${DEFAULT_ENABLE})
 option(BUILD_EIGEN "Copy Eigen headers" ${DEFAULT_ENABLE})
 option(BUILD_ODE "Build ODE physics engine" ${DEFAULT_ENABLE})
 option(BUILD_ARTOOLKIT "Build ARToolKit" ${DEFAULT_ENABLE})
-option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ${DEFAULT_ENABLE})
+option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ${NOT_IOS})
 option(BUILD_OPENSSL "Build OpenSSL" ${DEFAULT_ENABLE})
-option(BUILD_OPENEXR "Build OpenEXR" ${DEFAULT_ENABLE})
+option(BUILD_OPENEXR "Build OpenEXR" ${NOT_IOS})
 option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAULT_ENABLE})
 
 
@@ -80,6 +96,12 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
     set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/freebsd-libs-a)
   endif()
 
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  if(IS_MULTICONFIG)
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/darwin-ios-libs-a)
+  else()
+    set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/darwin-ios-${CMAKE_OSX_ARCHITECTURES}-libs-a)
+  endif()
 else()
   message(FATAL_ERROR "Unknown platform.")
 endif()
@@ -109,11 +131,19 @@ set(COMMON_CMAKE_ARGS
 if(APPLE)
   # Prevent the semicolon from becoming a space in the command.
   string(REPLACE ";" "$<SEMICOLON>" archs "${CMAKE_OSX_ARCHITECTURES}")
-  set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-    -DCMAKE_OSX_ARCHITECTURES=${archs}
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-    -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-  )
+  if(NOT IS_MULTICONFIG)
+    set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_OSX_ARCHITECTURES=${archs}
+      -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+      -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+    )
+  else()
+    set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+      -DCMAKE_MACOSX_BUNDLE=${CMAKE_MACOSX_BUNDLE}
+      -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY
+    )
+  endif()
 endif(APPLE)
 
 if(BUILD_ZLIB)
@@ -251,6 +281,7 @@ if(BUILD_HARFBUZZ)
       -DHB_HAVE_CORETEXT=OFF # macOS 10.8+
       -DFREETYPE_INCLUDE_DIR_freetype2=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
       -DFREETYPE_INCLUDE_DIR_ft2build=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
+      -DFREETYPE_LIBRARY=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/lib/
     INSTALL_DIR ${THIRDPARTY_DIR}/harfbuzz
   )
 
@@ -271,12 +302,13 @@ if(BUILD_FREETYPE)
       URL https://github.com/unicode-org/icu/releases/download/release-64-2/icu4c-64_2-src.tgz
       URL_HASH SHA256=627d5d8478e6d96fc8c90fed4851239079a561a6a8b9e48b0892f24e82d31d6c
 
-      CONFIGURE_COMMAND "../icu/source/configure"
-      BUILD_COMMAND "make"
+      CONFIGURE_COMMAND ../icu/source/configure --disable-tools --disable-tests --disable-extras
+      BUILD_COMMAND make
       INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/icu
     )
     set(icu_dep "icu")
-    set(icu_lib_hint "-DPC_HARFBUZZ_ICU_LIBDIR=${THIRDPARTY_DIR}/icu/lib")
+    set(icu_lib_hint -DPC_HARFBUZZ_ICU_LIBDIR=${THIRDPARTY_DIR}/icu/lib
+                     -DHARFBUZZ_ICU_LIBRARIES=${THIRDPARTY_DIR}/icu/lib)
   endif()
 
   ExternalProject_Add(
@@ -292,6 +324,7 @@ if(BUILD_FREETYPE)
       -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
       -DHARFBUZZ_INCLUDE_DIRS=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_INCLUDEDIR=${THIRDPARTY_DIR}/harfbuzz/include
+      -DHARFBUZZ_LIBRARIES=${THIRDPARTY_DIR}/harfbuzz/lib
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
       ${icu_lib_hint}
     INSTALL_DIR ${THIRDPARTY_DIR}/freetype
@@ -316,6 +349,8 @@ if(BUILD_VORBIS)
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
+      -DOGG_INCLUDE_DIRS=${THIRDPARTY_DIR}/vorbis/include
+      -DOGG_LIBRARIES=${THIRDPARTY_DIR}/vorbis/lib
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
   )
 endif()
@@ -356,6 +391,10 @@ if(BUILD_OPUS)
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DOGG_ROOT=${THIRDPARTY_DIR}/opus
       -DOPUS_ROOT=${THIRDPARTY_DIR}/opus
+      -DOGG_INCLUDE_DIRS=${THIRDPARTY_DIR}/opus/include
+      -DOGG_LIBRARIES=${THIRDPARTY_DIR}/opus/lib
+      -DOPUS_INCLUDE_DIRS=${THIRDPARTY_DIR}/opus/include/opus
+      -DOPUS_LIBRARIES=${THIRDPARTY_DIR}/opus/lib
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
   )
 endif()
@@ -406,6 +445,11 @@ else()
 endif()
 
 if(BUILD_SQUISH)
+  set(use_sse ON)
+  if (CMAKE_SYSTEM_NAME STREQUAL iOS)
+    set(use_sse OFF)
+  endif()
+
   ExternalProject_Add(
     squish
     DEPENDS png
@@ -416,6 +460,7 @@ if(BUILD_SQUISH)
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
+      -DUSE_SSE=${use_sse}
     INSTALL_DIR ${THIRDPARTY_DIR}/squish
   )
 endif()
@@ -461,11 +506,14 @@ if(BUILD_TIFF)
     URL http://download.osgeo.org/libtiff/tiff-4.0.6.tar.gz
     URL_HASH SHA256=4d57a50907b510e3049a4bba0d7888930fdfc16ce49f1bf693e5b6247370d68c
 
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libtiff.cmake <SOURCE_DIR>/CMakeLists.txt
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/jpeg
       -DJPEG_INCLUDE_DIR=${THIRDPARTY_DIR}/jpeg/include
       -DJPEG_LIBRARY=${JPEG_LIBRARY}
       -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
+      -DBUILD_TOOLS=OFF -DBUILD_MANUAL=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/tiff
   )
 
@@ -619,33 +667,47 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
   )
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
-                no-asm no-shared no-dso
-                -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
+                no-asm no-shared no-dso)
 
   if(CMAKE_OSX_SYSROOT)
-    set(ssl_flags ${ssl_flags} -I/usr/include)
+    set(ssl_flags ${ssl_flags} -I${CMAKE_OSX_SYSROOT}/usr/include)
   endif()
 
-  ExternalProject_Add(
-    openssl
-    URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
-    URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
+  if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+    set(platform ios64-xcrun)
+    if(CMAKE_OSX_ARCHITECTURES STREQUAL x86_64)
 
-    CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
-    BUILD_COMMAND make build_libs
-    BUILD_IN_SOURCE 1
+      set(platform iossimulator-xcrun)
+    endif()
+    ExternalProject_Add(
+      openssl
+      URL https://www.openssl.org/source/openssl-1.1.1c.tar.gz
+      URL_HASH SHA256=f6fb3079ad15076154eda9413fed42877d668e7069d9b87396d0804fdb3f4c90
 
-    INSTALL_COMMAND ""
-  )
-  ExternalProject_Add_Step(openssl combine
-    COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include "${THIRDPARTY_DIR}/openssl/include"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/openssl/lib"
-    COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a"
-            -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libcrypto.a"
-    COMMAND lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libssl.a"
-            -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libssl.a"
-    DEPENDEES install
-  )
+      CONFIGURE_COMMAND /usr/bin/perl ./Configure ${platform} ${ssl_flags}
+                        --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
+
+      BUILD_COMMAND make build_libs
+      BUILD_IN_SOURCE 1
+
+      INSTALL_COMMAND make -j1 install_sw
+      INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+    )
+  else()
+    ExternalProject_Add(
+      openssl
+      URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
+      URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
+
+      CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
+                        --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
+      BUILD_COMMAND make build_libs
+      BUILD_IN_SOURCE 1
+
+      INSTALL_COMMAND make -j1 install_sw
+      INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+    )
+  endif()
 endif()
 
 if(BUILD_OPENSSL AND NOT APPLE)
@@ -739,13 +801,34 @@ if(BUILD_FFMPEG AND WIN32)
     )
   endif()
 elseif(BUILD_FFMPEG)
+
+  if(CMAKE_CROSSCOMPILING)
+    set(cross_args --enable-cross-compile)
+    if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+      if(CMAKE_OSX_ARCHITECTURES STREQUAL arm64)
+        set(target "-target ${CMAKE_OSX_ARCHITECTURES}-apple-ios")
+      endif()
+      set(cc_arg "--cc=clang ${target}")
+
+      # Yes, for some reason *all* of these arguments are necessary. The CC arg
+      # is separate so the spaces will be escaped, but not the quotes.
+      set(cross_args ${cross_args}
+          --arch=${CMAKE_OSX_ARCHITECTURES} --sysroot=${CMAKE_OSX_SYSROOT}
+          --target-os=darwin ${cc_arg})
+    endif()
+  endif()
+
   EXTERNALPROJECT_ADD(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
     URL https://ffmpeg.org/releases/ffmpeg-3.2.2.tar.gz
     URL_HASH SHA256=228d3acf6be3180a4f38b94f582e550e72f1575d94725bfa82eaaf30a904eba1
 
-    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect
+    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR>
+                      --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared
+                      --enable-static --enable-pic --disable-doc --disable-debug
+                      --disable-programs --disable-outdevs
+                      --enable-runtime-cpudetect ${cross_args}
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 

@@ -73,7 +73,12 @@
 #elif defined(__linux__)
   #define ODE_PLATFORM_LINUX
 #elif defined(__APPLE__) && defined(__MACH__)
-  #define ODE_PLATFORM_OSX
+  #include "TargetConditionals.h"
+  #if TARGET_OS_IPHONE
+    #define ODE_PLATFORM_IOS
+  #else
+    #define ODE_PLATFORM_OSX
+  #endif
 #else
   #error "Need some help identifying the platform!"
 #endif
@@ -91,7 +96,7 @@
   #define macintosh
 #endif
 
-#if !defined(ODE_PLATFORM_OSX) && !defined(ODE_PLATFORM_PS3)
+#if !defined(ODE_PLATFORM_OSX) && !defined(ODE_PLATFORM_PS3) && !defined(ODE_PLATFORM_IOS)
   #include <malloc.h>
 #endif
 
