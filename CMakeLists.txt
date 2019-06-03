@@ -42,6 +42,8 @@ if(APPLE)
     if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
       set(NOT_IOS OFF)
       set(IOS ON)
+    else()
+      set(NOT_IOS ${DEFAULT_ENABLE})
     endif()
 else()
   set(NOT_APPLE ${DEFAULT_ENABLE})
@@ -699,8 +701,8 @@ elseif(BUILD_OPENSSL AND APPLE)
   else()
     ExternalProject_Add(
       openssl
-      URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
-      URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
+      URL https://www.openssl.org/source/openssl-1.1.1c.tar.gz
+      URL_HASH SHA256=f6fb3079ad15076154eda9413fed42877d668e7069d9b87396d0804fdb3f4c90
 
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
                         --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
