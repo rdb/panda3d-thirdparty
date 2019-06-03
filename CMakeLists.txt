@@ -704,6 +704,7 @@ elseif(BUILD_OPENSSL AND APPLE)
 
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc ${ssl_flags}
                         --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
+                        -Wno-nullability-completeness
       BUILD_COMMAND make build_libs
       BUILD_IN_SOURCE 1
 
