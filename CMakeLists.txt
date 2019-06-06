@@ -3,6 +3,54 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 
+include(CMakePackageConfigHelpers)
+function(export_config)
+  set(oneValueArgs TARGET INSTALL_DIR)
+  set(multiValueArgs OUTPUT_PATHS)
+  cmake_parse_arguments(CONFIG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  string(TOUPPER ${CONFIG_TARGET} CONFIG_TARGET_UPPER)
+
+  list(LENGTH CONFIG_OUTPUT_PATHS num_output_args)
+  set(infile_content "@PACKAGE_INIT@\n\n")
+  set(path_vars "")
+
+  while(num_output_args GREATER 0)
+    if(num_output_args EQUAL 1)
+      message(FATAL_ERROR "export_config must have both a variable name and
+                           variable value specified.")
+    endif()
+
+    list(GET CONFIG_OUTPUT_PATHS 0 var_name)
+    list(REMOVE_AT CONFIG_OUTPUT_PATHS 0)
+    list(GET CONFIG_OUTPUT_PATHS 0 var_value)
+    list(REMOVE_AT CONFIG_OUTPUT_PATHS 0)
+    list(LENGTH CONFIG_OUTPUT_PATHS num_output_args)
+
+    string(APPEND infile_content "set_and_check(${CONFIG_TARGET_UPPER}_${var_name} \"@PACKAGE_${var_name}@\")\n")
+
+    set(${var_name} ${var_value})
+    list(APPEND path_vars ${var_name})
+  endwhile()
+
+  string(APPEND infile_content "\nset(${CONFIG_TARGET_UPPER}_FOUND TRUE)\n")
+
+  set(infile ${CMAKE_CURRENT_BINARY_DIR}/configfiles/${CONFIG_TARGET}-config.cmake.in)
+  file(WRITE "${infile}" "${infile_content}")
+
+  configure_package_config_file("${infile}" "${CONFIG_INSTALL_DIR}/${CONFIG_TARGET}-config.cmake"
+                                INSTALL_DESTINATION "."
+                                PATH_VARS ${path_vars}
+                                NO_CHECK_REQUIRED_COMPONENTS_MACRO
+                                INSTALL_PREFIX "${CONFIG_INSTALL_DIR}")
+endfunction()
+
+if(WIN32)
+  set(STATIC_EXT "lib")
+else()
+  set(STATIC_EXT "a")
+endif()
+
 # Set defaults.  Must be before project().
 if(APPLE)
   set(CMAKE_OSX_ARCHITECTURES "x86_64;i386" CACHE STRING "")
@@ -167,6 +215,12 @@ if(BUILD_PNG)
       -DAWK= # Needed for multi-arch build on macOS
     INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
+
+  export_config(TARGET zlib
+                INSTALL_DIR ${THIRDPARTY_DIR}/zlib
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARY_DEBUG lib/libz.${STATIC_EXT}
+                             LIBRARY_RELASE lib/libz.${STATIC_EXT})
 endif()
 
 if(BUILD_ASSIMP)
@@ -184,6 +238,10 @@ if(BUILD_ASSIMP)
       -DLIBRARY_SUFFIX=
     INSTALL_DIR ${THIRDPARTY_DIR}/assimp
   )
+  export_config(TARGET assimp
+                INSTALL_DIR ${THIRDPARTY_DIR}/assimp
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARY lib/libassimp.${STATIC_EXT})
 endif()
 
 if(BUILD_BULLET)
@@ -254,6 +312,10 @@ if(BUILD_HARFBUZZ)
     COMMAND ${CMAKE_COMMAND} -E rename "<INSTALL_DIR>/include-tmp" "<INSTALL_DIR>/include"
     DEPENDEES install
   )
+  export_config(TARGET harfbuzz
+                INSTALL_DIR ${THIRDPARTY_DIR}/harfbuzz
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARY lib/libharfbuzz.${STATIC_EXT})
 endif()
 
 if(BUILD_FREETYPE)
@@ -295,6 +357,11 @@ if(BUILD_VORBIS)
       -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
   )
+  export_config(TARGET vorbis
+              INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
+              OUTPUT_PATHS INCLUDE_DIR include/
+                           vorbis_LIBRARY lib/libvorbis.${STATIC_EXT}
+                           vorbisfile_LIBRARY lib/libvorbisfile.${STATIC_EXT})
 endif()
 
 if(BUILD_OPUS)
@@ -335,6 +402,12 @@ if(BUILD_OPUS)
       -DOPUS_ROOT=${THIRDPARTY_DIR}/opus
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
   )
+
+  export_config(TARGET opus
+            INSTALL_DIR ${THIRDPARTY_DIR}/opus
+            OUTPUT_PATHS INCLUDE_DIR include/
+                         opus_LIBRARY lib/libopus.${STATIC_EXT}
+                         opusfile_LIBRARY lib/libopusfile.${STATIC_EXT})
 endif()
 
 if(BUILD_OPENAL)
@@ -374,10 +447,17 @@ if(BUILD_JPEG)
   )
 
   if(WIN32)
-    set(JPEG_LIBRARY ${THIRDPARTY_DIR}/jpeg/lib/jpeg-static.lib)
+    set(jpeg_libname jpeg-static.lib)
   else()
-    set(JPEG_LIBRARY ${THIRDPARTY_DIR}/jpeg/lib/libjpeg.a)
+    set(jpeg_libname libjpeg.a)
   endif()
+  set(JPEG_LIBRARY ${THIRDPARTY_DIR}/jpeg/lib/${jpeg_libname})
+
+  export_config(TARGET jpeg
+                INSTALL_DIR ${THIRDPARTY_DIR}/jpeg
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARY_DEBUG lib/${jpeg_libname}
+                             LIBRARY_RELEASE lib/${jpeg_libname})
 else()
   set(JPEG_LIBRARY JPEG_LIBRARY-NOTFOUND)
 endif()
@@ -395,6 +475,12 @@ if(BUILD_SQUISH)
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
     INSTALL_DIR ${THIRDPARTY_DIR}/squish
   )
+
+  export_config(TARGET libsquish
+                INSTALL_DIR ${THIRDPARTY_DIR}/squish
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             DEBUG_LIBRARY lib/libsquish.${STATIC_EXT}
+                             RELEASE_LIBRARY lib/libsquish.${STATIC_EXT})
 endif()
 
 if(BUILD_FCOLLADA)
@@ -407,6 +493,12 @@ if(BUILD_FCOLLADA)
       -DBUILD_TESTS=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
   )
+  # I don't know if this is correct or not.
+  export_config(TARGET fcollada
+                INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             RELEASE_LIBRARY lib/libFColladaSD.${STATIC_EXT}
+                             DEBUG_LIBRARY lib/libFColladaSD.${STATIC_EXT})
 endif()
 
 if(BUILD_VRPN)
@@ -429,6 +521,10 @@ if(BUILD_VRPN)
       -DBUILD_TESTING=FALSE
     INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
   )
+  export_config(TARGET vrpn
+                INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             vrpn_LIBRARY lib/libvrpn.${STATIC_EXT})
 endif()
 
 if(BUILD_TIFF)
@@ -452,6 +548,11 @@ if(BUILD_TIFF)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     DEPENDEES install
   )
+  export_config(TARGET tiff
+                INSTALL_DIR ${THIRDPARTY_DIR}/tiff
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARY_DEBUG lib/libtiff.${STATIC_EXT}
+                             LIBRARY_RELEASE lib/libtiff.${STATIC_EXT})
 endif()
 
 if(BUILD_EIGEN)
@@ -495,6 +596,11 @@ if(BUILD_ARTOOLKIT)
     CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=i386$<SEMICOLON>x86_64
     INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
   )
+
+  export_config(TARGET artoolkit
+                INSTALL_DIR ${THIRDPARTY_DIR}/artoolkit
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARIES lib/)
 endif()
 
 if(BUILD_NVIDIACG AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -582,6 +688,11 @@ if(BUILD_OPENSSL AND MSVC)
     INSTALL_COMMAND nmake -f ms\\nt.mak install
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
+  export_config(TARGET openssl
+              INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+              OUTPUT_PATHS INCLUDE_DIR include/
+                           CRYPTO_LIBRARY lib/libcrypto.lib
+                           SSL_LIBRARY lib/libssl.lib)
 elseif(BUILD_OPENSSL AND NOT APPLE)
   ExternalProject_Add(
     openssl
@@ -594,6 +705,11 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
 
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
+  export_config(TARGET openssl
+            INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+            OUTPUT_PATHS INCLUDE_DIR include/
+                         CRYPTO_LIBRARY lib/libcrypto.a
+                         SSL_LIBRARY lib/libssl.a)
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
                 no-asm no-shared no-dso
@@ -637,6 +753,12 @@ elseif(BUILD_OPENSSL AND APPLE)
             -arch x86_64 "${CMAKE_CURRENT_BINARY_DIR}/openssl-prefix/src/openssl/libssl.a"
     DEPENDEES install
   )
+
+  export_config(TARGET openssl
+          INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+          OUTPUT_PATHS INCLUDE_DIR include/
+                       CRYPTO_LIBRARY lib/libcrypto.a
+                       SSL_LIBRARY lib/libssl.a)
 endif()
 
 if(BUILD_OPENSSL AND NOT APPLE)
@@ -671,6 +793,17 @@ if(BUILD_OPENEXR)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     DEPENDEES install
   )
+
+  export_config(TARGET openexr
+              INSTALL_DIR ${THIRDPARTY_DIR}/openexr
+              OUTPUT_PATHS INCLUDE_DIR include/
+                           half_LIBRARY lib/libHalf.${STATIC_EXT}
+                           iex_LIBRARY lib/libIex.${STATIC_EXT}
+                           iexmath_LIBRARY lib/libIexMath.${STATIC_EXT}
+                           ilmthread_LIBRARY lib/libIlmThread.${STATIC_EXT}
+                           imath_LIBRARY lib/libImath.${STATIC_EXT}
+                           imf_LIBRARY lib/libIlmImf.${STATIC_EXT}
+                           imfutil_LIBRARY lib/libIlmImfUtil.${STATIC_EXT})
 endif()
 
 if(BUILD_FFMPEG AND WIN32)
@@ -742,4 +875,11 @@ elseif(BUILD_FFMPEG)
 
     INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
   )
+  export_config(TARGET ffmpeg
+                INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
+                OUTPUT_PATHS INCLUDE_DIR include/
+                             LIBRARIES lib/
+                             LIBAVCODEC lib/libavcodec.${STATIC_EXT}
+                             LIBAVFORMAT lib/libavformat.${STATIC_EXT}
+                             LIBAVUTIL lib/libavutil.${STATIC_EXT})
 endif()
