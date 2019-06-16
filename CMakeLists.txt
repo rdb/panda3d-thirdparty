@@ -685,7 +685,7 @@ elseif(BUILD_OPENSSL AND APPLE)
   endif()
 
   if(CMAKE_SYSTEM_NAME STREQUAL iOS)
-    set(platform ios64-xcrun)
+    set(platform ios64-cross)
     if(CMAKE_OSX_ARCHITECTURES STREQUAL x86_64)
 
       set(platform iossimulator-xcrun)
@@ -695,8 +695,9 @@ elseif(BUILD_OPENSSL AND APPLE)
       URL https://www.openssl.org/source/openssl-1.1.1c.tar.gz
       URL_HASH SHA256=f6fb3079ad15076154eda9413fed42877d668e7069d9b87396d0804fdb3f4c90
 
-      CONFIGURE_COMMAND /usr/bin/perl ./Configure ${platform} ${ssl_flags}
+      CONFIGURE_COMMAND ./Configure ${platform} ${ssl_flags}
                         --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>
+                        -Wno-nullability-completeness -Wno-expansion-to-defined
 
       BUILD_COMMAND make build_libs
       BUILD_IN_SOURCE 1
@@ -850,27 +851,42 @@ endif()
 
 if(BUILD_PYTHON)
   if(CMAKE_CROSSCOMPILING)
-    ExternalProject_Add(
-      python-x86
-      GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+    if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+      ExternalProject_Add(
+        python
+        GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
 
-      BUILD_COMMAND ${CMAKE_COMMAND} --build . --target _freeze_importlib
-      INSTALL_COMMAND cp <BINARY_DIR>/CMakeBuild/libpython/NativeExports.cmake ${THIRDPARTY_DIR}/python/NativeExports.cmake
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND <SOURCE_DIR>/build-ios.py --arch=${CMAKE_OSX_ARCHITECTURES}
+                      --install-dir=<INSTALL_DIR> --suppress-stdout
+        INSTALL_COMMAND ""
 
-    )
-    ExternalProject_Add(
-      python
-      DEPENDS python-x86
-      GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+        BUILD_IN_SOURCE 1
+        INSTALL_DIR ${THIRDPARTY_DIR}/python
+      )
+    else()
+      ExternalProject_Add(
+        python-x86
+        GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
 
-      CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-                 -DPYTHON_VERSION=3.6.6 -DWITH_STATIC_DEPENDENCIES=ON
-                 -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-                 -DINSTALL_MANUAL=OFF -DINSTALL_TESTS=OFF
-                 -DIMPORT_NATIVE_EXECUTABLES=${THIRDPARTY_DIR}/python/NativeExports.cmake
+        BUILD_COMMAND ${CMAKE_COMMAND} --build . --target _freeze_importlib
+        INSTALL_COMMAND cp <BINARY_DIR>/CMakeBuild/libpython/NativeExports.cmake ${THIRDPARTY_DIR}/python/NativeExports.cmake
 
-      INSTALL_DIR ${THIRDPARTY_DIR}/python
-    )
+      )
+      ExternalProject_Add(
+        python
+        DEPENDS python-x86
+        GIT_REPOSITORY https://github.com/treamology/ppython-cmake-scripts
+
+        CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+                   -DPYTHON_VERSION=3.6.6 -DWITH_STATIC_DEPENDENCIES=ON
+                   -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+                   -DINSTALL_MANUAL=OFF -DINSTALL_TESTS=OFF
+                   -DIMPORT_NATIVE_EXECUTABLES=${THIRDPARTY_DIR}/python/NativeExports.cmake
+
+        INSTALL_DIR ${THIRDPARTY_DIR}/python
+      )
+    endif()
   else()
     ExternalProject_Add(
       python

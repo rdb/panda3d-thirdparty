@@ -1,8 +1,24 @@
 language: cpp
+osx_image: xcode10.2
 
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: linux
+      env: CMAKE_OPTIONS=""
+    - os: osx
+      env: CMAKE_OPTIONS=""
+    - os: osx
+      env: >-
+        CMAKE_OPTIONS="-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_ARCHITECTURES=arm64"
+        CROSS_TOP=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
+        CROSS_SDK=iPhoneOS.sdk
+    - os: osx
+      env: >-
+        CMAKE_OPTIONS="-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator -DCMAKE_OSX_ARCHITECTURES=x86_64"
+        CROSS_TOP=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer
+        CROSS_SDK=iPhoneSimulator.sdk
+
+install: if [[ $TRAVIS_OS_NAME == osx ]]; then brew upgrade cmake; fi
 
 before_script:
   - wget http://www.tortall.net/projects/yasm/releases/yasm-1.2.0.tar.gz
@@ -13,5 +29,5 @@ before_script:
 
 script:
   - mkdir build && cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake -DCMAKE_BUILD_TYPE=Release $CMAKE_OPTIONS ..
   - cmake --build . --config Release
