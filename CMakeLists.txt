@@ -312,9 +312,10 @@ if(BUILD_FREETYPE)
       URL https://github.com/unicode-org/icu/releases/download/release-64-2/icu4c-64_2-src.tgz
       URL_HASH SHA256=627d5d8478e6d96fc8c90fed4851239079a561a6a8b9e48b0892f24e82d31d6c
 
-      CONFIGURE_COMMAND ../icu/source/configure --disable-tools --disable-tests --disable-extras
+      CONFIGURE_COMMAND ../icu/source/configure --disable-tools --disable-tests --disable-extras --prefix=<INSTALL_DIR>
       BUILD_COMMAND make
-      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/icu
+      INSTALL_COMMAND make install
+      INSTALL_DIR ${THIRDPARTY_DIR}/icu
     )
     set(icu_dep "icu")
     set(icu_lib_hint -DPC_HARFBUZZ_ICU_LIBDIR=${THIRDPARTY_DIR}/icu/lib
