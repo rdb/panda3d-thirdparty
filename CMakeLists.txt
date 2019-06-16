@@ -147,6 +147,7 @@ if(APPLE)
       -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
       -DCMAKE_MACOSX_BUNDLE=${CMAKE_MACOSX_BUNDLE}
       -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY
+      -DCMAKE_SYSTEM_PROCESSOR=${CMAKE_OSX_ARCHITECTURES}
     )
   endif()
 endif(APPLE)
@@ -189,6 +190,9 @@ if(BUILD_ZLIB)
 endif()
 
 if(BUILD_PNG)
+  if(IOS AND CMAKE_OSX_ARCHITECTURES STREQUAL arm64)
+    set(png_neon "-DPNG_ARM_NEON=on")
+  endif()
   ExternalProject_Add(
     png
     DEPENDS zlib
@@ -206,6 +210,7 @@ if(BUILD_PNG)
       -DPNG_TESTS=OFF
       -DPNG_DEBUG=OFF
       -DAWK= # Needed for multi-arch build on macOS
+      ${png_neon}
     INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
 endif()
