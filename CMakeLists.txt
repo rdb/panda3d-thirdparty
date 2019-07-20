@@ -859,6 +859,7 @@ if(BUILD_PYTHON)
         CONFIGURE_COMMAND ""
         BUILD_COMMAND <SOURCE_DIR>/build-ios.py --arch=${CMAKE_OSX_ARCHITECTURES}
                       --install-dir=<INSTALL_DIR> --suppress-stdout
+                      --configuration=$<CONFIG>
         INSTALL_COMMAND ""
 
         BUILD_IN_SOURCE 1
