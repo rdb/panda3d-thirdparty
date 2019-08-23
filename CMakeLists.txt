@@ -128,6 +128,7 @@ if(BUILD_ZLIB)
     ExternalProject_Add_Step(zlib remove_extras
       COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
       COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+      COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
       DEPENDEES install
     )
   elseif(APPLE)
