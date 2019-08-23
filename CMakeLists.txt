@@ -466,6 +466,7 @@ if(BUILD_EIGEN)
     BUILD_COMMAND ""
 
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/Eigen <INSTALL_DIR>/include/Eigen
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different <SOURCE_DIR>/signature_of_eigen3_matrix_library <INSTALL_DIR>/include/signature_of_eigen3_matrix_library
     INSTALL_DIR ${THIRDPARTY_DIR}/eigen
   )
 endif()
