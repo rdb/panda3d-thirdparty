@@ -168,6 +168,11 @@ if(BUILD_PNG)
       -DAWK= # Needed for multi-arch build on macOS
     INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
+
+  ExternalProject_Add_Step(png remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/libpng"
+    DEPENDEES install
+  )
 endif()
 
 if(BUILD_ASSIMP)
@@ -184,6 +189,12 @@ if(BUILD_ASSIMP)
       -DASSIMP_NO_EXPORT=ON
       -DLIBRARY_SUFFIX=
     INSTALL_DIR ${THIRDPARTY_DIR}/assimp
+  )
+
+  ExternalProject_Add_Step(assimp remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()
 
@@ -207,6 +218,12 @@ if(BUILD_BULLET)
       -DBUILD_UNIT_TESTS=OFF
       -DINCLUDE_INSTALL_DIR:STRING=include/
     INSTALL_DIR ${THIRDPARTY_DIR}/bullet
+  )
+
+  ExternalProject_Add_Step(bullet remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()
 
@@ -274,6 +291,11 @@ if(BUILD_FREETYPE)
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
     INSTALL_DIR ${THIRDPARTY_DIR}/freetype
   )
+
+  ExternalProject_Add_Step(freetype remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
+    DEPENDEES install
+  )
 endif()
 
 if(BUILD_VORBIS)
@@ -296,6 +318,11 @@ if(BUILD_VORBIS)
       -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
   )
+
+  ExternalProject_Add_Step(vorbis remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
+  )
 endif()
 
 if(BUILD_OPUS)
@@ -317,12 +344,6 @@ if(BUILD_OPUS)
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
   )
 
-  # copy over pkg-config file
-  ExternalProject_Add_Step(opus copy_pkg_config
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different <SOURCE_DIR>/opus.pc.in <INSTALL_DIR>/lib/pkgconfig/opus.pc.in
-    DEPENDEES install
-  )
-
   ExternalProject_Add(
     opusfile
     DEPENDS ogg-opus opus
@@ -335,6 +356,11 @@ if(BUILD_OPUS)
       -DOGG_ROOT=${THIRDPARTY_DIR}/opus
       -DOPUS_ROOT=${THIRDPARTY_DIR}/opus
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
+  )
+
+  ExternalProject_Add_Step(ogg-opus remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()
 
@@ -355,6 +381,12 @@ if(BUILD_OPENAL)
       -DALSOFT_UTILS=OFF
       -DALSOFT_ENABLE_SSE2_CODEGEN=OFF      # for only 32-bit
     INSTALL_DIR ${THIRDPARTY_DIR}/openal
+  )
+
+  ExternalProject_Add_Step(openal remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()
 
@@ -584,6 +616,12 @@ if(BUILD_OPENSSL AND MSVC)
     INSTALL_COMMAND nmake -f ms\\nt.mak install
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
+
+  ExternalProject_Add_Step(openssl remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
+    DEPENDEES install
+  )
 elseif(BUILD_OPENSSL AND NOT APPLE)
   ExternalProject_Add(
     openssl
@@ -595,6 +633,13 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
     BUILD_IN_SOURCE 1
 
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+  )
+
+  ExternalProject_Add_Step(openssl remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
@@ -641,15 +686,6 @@ elseif(BUILD_OPENSSL AND APPLE)
   )
 endif()
 
-if(BUILD_OPENSSL AND NOT APPLE)
-  # Delete the bin and ssl directories in the install folder.
-  ExternalProject_Add_Step(openssl remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
-    DEPENDEES install
-  )
-endif()
-
 if(BUILD_OPENEXR)
   ExternalProject_Add(
     openexr
@@ -671,6 +707,7 @@ if(BUILD_OPENEXR)
   ExternalProject_Add_Step(openexr remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
   )
 endif()
@@ -743,5 +780,10 @@ elseif(BUILD_FFMPEG)
     BUILD_IN_SOURCE 1
 
     INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
+  )
+
+  ExternalProject_Add_Step(ffmpeg remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()

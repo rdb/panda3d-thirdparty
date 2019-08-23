@@ -72,25 +72,3 @@ target_include_directories(opusfile PUBLIC
 
 install(TARGETS opusfile DESTINATION lib)
 install(FILES ${OPUSFILE_HDR} DESTINATION include/opus)
-
-# Helper function to configure pkg-config files
-function(configure_pkg_config_file pkg_config_file_in)
-    set(prefix ${CMAKE_INSTALL_PREFIX})
-    set(exec_prefix ${CMAKE_INSTALL_FULL_BINDIR})
-    set(libdir ${CMAKE_INSTALL_FULL_LIBDIR})
-    set(includedir ${CMAKE_INSTALL_FULL_INCLUDEDIR})
-    set(PACKAGE_VERSION 0.11)
-    string(REPLACE ".in" "" pkg_config_file ${pkg_config_file_in})
-    configure_file(${pkg_config_file_in} ${pkg_config_file} @ONLY)
-endfunction()
-
-configure_pkg_config_file(opusfile.pc.in)
-set(VERSION 1.3)
-configure_pkg_config_file(${OPUS_ROOT}/lib/pkgconfig/opus.pc.in)
-
-install(
-    FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/opusfile.pc
-    DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
