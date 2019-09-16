@@ -80,7 +80,7 @@ endif()
 
 if(NOT MSVC)
   set(CMAKE_C_FLAGS "-fpic")
-  set(CMAKE_CXX_FLAGS "-fpic")
+  set(CMAKE_CXX_FLAGS "-fpic -fno-exceptions")
 endif()
 
 message("thirdparty packages will be installed to ${THIRDPARTY_DIR}")
