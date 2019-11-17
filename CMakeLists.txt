@@ -248,17 +248,15 @@ if(BUILD_HARFBUZZ)
   ExternalProject_Add(
     harfbuzz
     DEPENDS freetype-nohb
-    URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-1.7.4.tar.bz2
-    URL_HASH SHA256=b5d6ac8415f97f3540d73f3f91c41c5c10f8a4d76350f11a7184062aae88ac0b
-
-    # The original includes an add_subdirectory(test) but without a CMakeLists.txt
-    # Also, it's not compatible with CMake 2.8 except for a minor tweak.
-    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/harfbuzz.cmake <SOURCE_DIR>/CMakeLists.txt
+    URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.6.4.tar.xz
+    URL_HASH SHA256=9413b8d96132d699687ef914ebb8c50440efc87b3f775d25856d7ec347c03c12
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
       -DHB_HAVE_FREETYPE=ON
+      -DHB_BUILD_TESTS=OFF
       -DHB_BUILD_UTILS=OFF
+      -DHB_BUILD_SUBSET=OFF
       -DHB_HAVE_INTROSPECTION=OFF
       -DHB_HAVE_CORETEXT=OFF # macOS 10.8+
       -DFREETYPE_INCLUDE_DIR_freetype2=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
@@ -270,6 +268,7 @@ if(BUILD_HARFBUZZ)
     COMMAND ${CMAKE_COMMAND} -E rename "<INSTALL_DIR>/include/harfbuzz" "<INSTALL_DIR>/include-tmp"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/include"
     COMMAND ${CMAKE_COMMAND} -E rename "<INSTALL_DIR>/include-tmp" "<INSTALL_DIR>/include"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
     DEPENDEES install
   )
 endif()
