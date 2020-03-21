@@ -202,7 +202,7 @@ if(BUILD_BULLET)
   ExternalProject_Add(
     bullet
     GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-    GIT_TAG 7638b7c5a659dceb4e580ae87d4d60b00847ef94 # https://github.com/bulletphysics/bullet3/pull/2232
+    GIT_TAG 2fb92bc40c16e4da5a9018479d4a8e1899702ab8 #v2.83.7
     #URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
     #URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
 
