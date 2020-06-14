@@ -46,6 +46,9 @@ option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ${DEFAULT_ENABLE})
 option(BUILD_OPENSSL "Build OpenSSL" ${DEFAULT_ENABLE})
 option(BUILD_OPENEXR "Build OpenEXR" ${DEFAULT_ENABLE})
 option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAULT_ENABLE})
+option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
+option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
+option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
@@ -768,6 +771,88 @@ elseif(BUILD_FFMPEG)
 
   ExternalProject_Add_Step(ffmpeg remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
+  )
+endif()
+
+if(BUILD_GLSLANG)
+  ExternalProject_Add(
+    glslang
+    GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+    GIT_TAG b919bc889e1d1032fcbad231b444ff96a541615d
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DBUILD_EXTERNAL=OFF
+      -DBUILD_SHARED_LIBS=OFF
+      -DBUILD_TESTING=OFF
+      -DENABLE_EXCEPTIONS=OFF
+      -DENABLE_GLSLANG_BINARIES=OFF
+      -DENABLE_HLSL=ON
+      -DENABLE_RTTI=OFF
+      -DENABLE_SPVREMAPPER=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/glslang
+  )
+endif()
+
+if(BUILD_SPIRV_CROSS)
+  ExternalProject_Add(
+    spirv-cross
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+    GIT_TAG 92fcd7d2b026700ace0304af25f254a561778d77
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DSPIRV_CROSS_CLI=OFF
+      -DSPIRV_CROSS_ENABLE_CPP=OFF
+      -DSPIRV_CROSS_ENABLE_C_API=OFF
+      -DSPIRV_CROSS_ENABLE_GLSL=ON
+      -DSPIRV_CROSS_ENABLE_HLSL=ON
+      -DSPIRV_CROSS_ENABLE_MSL=ON
+      -DSPIRV_CROSS_ENABLE_REFLECT=OFF
+      -DSPIRV_CROSS_ENABLE_TESTS=OFF
+      -DSPIRV_CROSS_ENABLE_UTIL=OFF
+      -DSPIRV_CROSS_FORCE_PIC=ON
+      -DSPIRV_CROSS_SHARED=OFF
+      -DSPIRV_CROSS_STATIC=ON
+    INSTALL_DIR ${THIRDPARTY_DIR}/spirv-cross
+  )
+
+  ExternalProject_Add_Step(spirv-cross remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    DEPENDEES install
+  )
+endif()
+
+if(BUILD_SPIRV_TOOLS)
+  ExternalProject_Add(
+    spirv-headers
+    GIT_REPOSITORY git@github.com:KhronosGroup/SPIRV-Headers.git
+    GIT_TAG 11d7637e7a43cd88cfd4e42c99581dcb682936aa
+
+    BUILD_COMMAND cmake -E echo "Skipping build step."
+    INSTALL_COMMAND cmake -E echo "Skipping install step."
+    EXCLUDE_FROM_ALL TRUE
+  )
+
+  ExternalProject_Add(
+    spirv-tools
+    DEPENDS spirv-headers
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+    GIT_TAG 30bf46dbe06f6e1b58657fae1e13c1900eb9d8d3
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
+      -DSPIRV_BUILD_COMPRESSION=OFF
+      -DSPIRV_SKIP_EXECUTABLES=ON
+      -DSPIRV_SKIP_TESTS=ON
+    INSTALL_DIR ${THIRDPARTY_DIR}/spirv-tools
+  )
+
+  ExternalProject_Add_Step(spirv-tools remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-opt"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-reduce"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-link"
     DEPENDEES install
   )
 endif()
