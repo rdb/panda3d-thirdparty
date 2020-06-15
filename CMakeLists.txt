@@ -826,7 +826,7 @@ endif()
 if(BUILD_SPIRV_TOOLS)
   ExternalProject_Add(
     spirv-headers
-    GIT_REPOSITORY git@github.com:KhronosGroup/SPIRV-Headers.git
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
     GIT_TAG 11d7637e7a43cd88cfd4e42c99581dcb682936aa
 
     BUILD_COMMAND cmake -E echo "Skipping build step."
