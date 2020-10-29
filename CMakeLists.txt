@@ -779,7 +779,7 @@ if(BUILD_GLSLANG)
   ExternalProject_Add(
     glslang
     GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG b919bc889e1d1032fcbad231b444ff96a541615d
+    GIT_TAG 740ae9f60b009196662bad811924788cee56133a
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_EXTERNAL=OFF
@@ -798,7 +798,7 @@ if(BUILD_SPIRV_CROSS)
   ExternalProject_Add(
     spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG 7073ed2edb2b1459d13fcc3818194d7c116b123e
+    GIT_TAG 78c6d2d62897e700f7f6bbd6289ff22245058ed7
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV_CROSS_CLI=OFF
@@ -827,7 +827,7 @@ if(BUILD_SPIRV_TOOLS)
   ExternalProject_Add(
     spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG 11d7637e7a43cd88cfd4e42c99581dcb682936aa
+    GIT_TAG 05836bdba63e7debce9fa9feaed42f20cd43af9d
 
     BUILD_COMMAND cmake -E echo "Skipping build step."
     INSTALL_COMMAND cmake -E echo "Skipping install step."
@@ -838,7 +838,7 @@ if(BUILD_SPIRV_TOOLS)
     spirv-tools
     DEPENDS spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG 30bf46dbe06f6e1b58657fae1e13c1900eb9d8d3
+    GIT_TAG a1d38174b1f7d2651c718ae661886d606cb50a32
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
