@@ -38,7 +38,7 @@ jobs:
   # build
   - task: CMake@1
     inputs:
-      cmakeArgs: --build . --config release
+      cmakeArgs: --build . --config release -j4
 
   # tests
   #- task
