@@ -779,7 +779,7 @@ if(BUILD_GLSLANG)
   ExternalProject_Add(
     glslang
     GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG 740ae9f60b009196662bad811924788cee56133a
+    GIT_TAG 383eaf3293fa898622ad210ce49d11924e0d6aa1
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_EXTERNAL=OFF
@@ -798,7 +798,7 @@ if(BUILD_SPIRV_CROSS)
   ExternalProject_Add(
     spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG 78c6d2d62897e700f7f6bbd6289ff22245058ed7
+    GIT_TAG a20c768698836d93a86d0fe742081012b66c6afd
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV_CROSS_CLI=OFF
@@ -838,7 +838,7 @@ if(BUILD_SPIRV_TOOLS)
     spirv-tools
     DEPENDS spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG a1d38174b1f7d2651c718ae661886d606cb50a32
+    GIT_TAG 56d0f50357a192602216bfc4873e714905323e35
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
