@@ -723,7 +723,7 @@ if(BUILD_GLSLANG)
   ExternalProject_Add(
     glslang
     GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG 383eaf3293fa898622ad210ce49d11924e0d6aa1
+    GIT_TAG 74e8f05b9fc7229a7c42015889aba12c7f9554b1
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_EXTERNAL=OFF
@@ -742,7 +742,7 @@ if(BUILD_SPIRV_CROSS)
   ExternalProject_Add(
     spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG a20c768698836d93a86d0fe742081012b66c6afd
+    GIT_TAG 1ee2d138738e7a9cb7f40b98d5dc56dcdbbfadcf
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV_CROSS_CLI=OFF
