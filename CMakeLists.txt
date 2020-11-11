@@ -699,63 +699,7 @@ if(BUILD_OPENEXR)
   )
 endif()
 
-if(BUILD_FFMPEG AND WIN32)
-  set(FFMPEG_VERSION 3.2.4)
-
-  if(CMAKE_GENERATOR MATCHES "Win64$")
-    set(MACHINE_FLAG "/machine:x64")
-    set(FFMPEG_ARCH "win64")
-    set(FFMPEG_DEV_HASH 3486b694cf92b1480c53609cc3695b5f0b53cbc7c1894170fe60575b707fd300)
-    set(FFMPEG_SHARED_HASH 31dab0e45aa2808fc422927eca5d49761985d1471b7122aadc6f85deb7bf6a7f)
-  else()
-    set(MACHINE_FLAG "/machine:x86")
-    set(FFMPEG_ARCH "win32")
-    set(FFMPEG_DEV_HASH 30e47528f8d16b4365ccbe76dc8ccfa145930064e7a496495a3e805d225b5801)
-    set(FFMPEG_SHARED_HASH c62a6e2237097cedbfd6b2e122f6650baf468d1bb4e9f73105126bf2a44b2329)
-  endif()
-  ExternalProject_Add(
-    ffmpeg-dev
-    URL http://ffmpeg.zeranoe.com/builds/${FFMPEG_ARCH}/dev/ffmpeg-${FFMPEG_VERSION}-${FFMPEG_ARCH}-dev.zip
-    URL_HASH SHA256=${FFMPEG_DEV_HASH}
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E make_directory <SOURCE_DIR>/outlib
-    BUILD_COMMAND lib.exe /def:lib\\avcodec-57.def /out:outlib\\avcodec.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\avdevice-57.def /out:outlib\\avdevice.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\avfilter-6.def /out:outlib\\avfilter.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\avformat-57.def /out:outlib\\avformat.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\avutil-55.def /out:outlib\\avutil.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\postproc-54.def /out:outlib\\postproc.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\swresample-2.def /out:outlib\\swresample.lib ${MACHINE_FLAG}
-          COMMAND lib.exe /def:lib\\swscale-4.def /out:outlib\\swscale.lib ${MACHINE_FLAG}
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/outlib <INSTALL_DIR>/lib
-            COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
-            COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/licenses <INSTALL_DIR>/licenses
-    INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
-  )
-  ExternalProject_Add(
-    ffmpeg-shared
-    URL http://ffmpeg.zeranoe.com/builds/${FFMPEG_ARCH}/shared/ffmpeg-${FFMPEG_VERSION}-${FFMPEG_ARCH}-shared.zip
-    URL_HASH SHA256=${FFMPEG_SHARED_HASH}
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/bin <INSTALL_DIR>/bin
-    INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
-  )
-  ExternalProject_Add_Step(ffmpeg-shared remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/bin/ffmpeg.exe"
-                                       "<INSTALL_DIR>/bin/ffplay.exe"
-                                       "<INSTALL_DIR>/bin/ffprobe.exe"
-    DEPENDEES install
-  )
-
-  if (CMAKE_GENERATOR MATCHES "^Visual Studio 10 ")
-    # Copy over the custom inttypes.h file.
-    ExternalProject_Add_Step(ffmpeg-dev install_inttypes
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/inttypes.h" "<INSTALL_DIR>/include/inttypes.h"
-      DEPENDEES install
-    )
-  endif()
-elseif(BUILD_FFMPEG)
+if(BUILD_FFMPEG AND NOT WIN32)
   EXTERNALPROJECT_ADD(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
