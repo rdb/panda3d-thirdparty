@@ -49,10 +49,7 @@ option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAUL
 option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
-
-if(APPLE)
-  option(BUILD_OPENCV "Build OpenCV" ${DEFAULT_ENABLE})
-endif()
+option(BUILD_OPENCV "Build OpenCV" OFF)
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
@@ -806,13 +803,14 @@ if(BUILD_SPIRV_TOOLS)
   )
 endif()
 
-if(APPLE AND BUILD_OPENCV)
+if(BUILD_OPENCV)
   ExternalProject_Add(
     opencv
     GIT_REPOSITORY https://github.com/opencv/opencv.git
     GIT_TAG 6484732509400ff1cfed4ba44b4c8a1a11799e40 # 2.4.3
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DBUILD_SHARED_LIBS=ON
       -DWITH_CARBON=OFF
       -DWITH_COCOA=ON
       -DBUILD_ZLIB=OFF
@@ -822,7 +820,24 @@ if(APPLE AND BUILD_OPENCV)
       -DBUILD_PERF_TESTS=OFF
       -DWITH_CUDA=OFF
       -DENABLE_PRECOMPILED_HEADERS=OFF
+      -DBUILD_opencv_calib3d=OFF
+      -DBUILD_opencv_contrib=OFF
+      -DBUILD_opencv_core=ON
+      -DBUILD_opencv_features2d=OFF
+      -DBUILD_opencv_flann=OFF
+      -DBUILD_opencv_gpu=OFF
+      -DBUILD_opencv_highgui=ON
+      -DBUILD_opencv_imgproc=ON
+      -DBUILD_opencv_legacy=OFF
+      -DBUILD_opencv_ml=OFF
+      -DBUILD_opencv_nonfree=OFF
+      -DBUILD_opencv_objdetect=OFF
+      -DBUILD_opencv_photo=OFF
+      -DBUILD_opencv_python=OFF
+      -DBUILD_opencv_stitching=OFF
       -DBUILD_opencv_ts=OFF
+      -DBUILD_opencv_video=OFF
+      -DBUILD_opencv_videostab=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/opencv
   )
 
