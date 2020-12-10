@@ -30,6 +30,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] nvidiacg
 - [x] ode
 - [x] openal
+- [x] opencv (macOS only)
 - [x] openexr
 - [x] openssl
 - [x] opus

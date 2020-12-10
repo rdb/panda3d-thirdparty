@@ -50,6 +50,10 @@ option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 
+if(APPLE)
+  option(BUILD_OPENCV "Build OpenCV" ${DEFAULT_ENABLE})
+endif()
+
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
   string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
@@ -798,6 +802,34 @@ if(BUILD_SPIRV_TOOLS)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-opt"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-reduce"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-link"
+    DEPENDEES install
+  )
+endif()
+
+if(APPLE AND BUILD_OPENCV)
+  ExternalProject_Add(
+    opencv
+    GIT_REPOSITORY https://github.com/opencv/opencv.git
+    GIT_TAG 6484732509400ff1cfed4ba44b4c8a1a11799e40 # 2.4.3
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DWITH_CARBON=OFF
+      -DWITH_COCOA=ON
+      -DBUILD_ZLIB=OFF
+      -DPYTHON_USE_NUMPY=OFF
+      -DBUILD_DOCS=OFF
+      -DBUILD_TESTS=OFF
+      -DBUILD_PERF_TESTS=OFF
+      -DWITH_CUDA=OFF
+      -DENABLE_PRECOMPILED_HEADERS=OFF
+      -DBUILD_opencv_ts=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/opencv
+  )
+
+  ExternalProject_Add_Step(opencv remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
   )
 endif()
