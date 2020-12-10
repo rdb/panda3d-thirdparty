@@ -35,7 +35,6 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] openssl
 - [x] opus
 - [x] png
-- [ ] rocket
 - [x] squish
 - [x] tiff
 - [x] vorbis
