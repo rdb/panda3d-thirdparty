@@ -236,15 +236,15 @@ if(BUILD_HARFBUZZ)
   # have to make a temporary build of freetype so we can build HarfBuzz.
   ExternalProject_Add(
     freetype-nohb
-    DEPENDS zlib png
+    DEPENDS zlib
     URL https://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
       -DWITH_HarfBuzz=OFF
       -DWITH_BZip2=OFF
-      -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
+      -DWITH_PNG=OFF
     INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
   )
 
@@ -280,15 +280,15 @@ endif()
 if(BUILD_FREETYPE)
   ExternalProject_Add(
     freetype
-    DEPENDS zlib png harfbuzz
+    DEPENDS zlib harfbuzz
     URL https://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/png;${THIRDPARTY_DIR}/harfbuzz
+      -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/harfbuzz
       -DWITH_HarfBuzz=ON
       -DWITH_BZip2=OFF
-      -DPNG_INCLUDE_DIRS=${THIRDPARTY_DIR}/png/include
+      -DWITH_PNG=OFF
       -DHARFBUZZ_INCLUDE_DIRS=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_INCLUDEDIR=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
