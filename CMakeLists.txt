@@ -835,6 +835,8 @@ if(BUILD_OPENCV)
     GIT_REPOSITORY https://github.com/opencv/opencv.git
     GIT_TAG 6484732509400ff1cfed4ba44b4c8a1a11799e40 # 2.4.3
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/opencv-2.4.3-highgui-avfoundation.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_SHARED_LIBS=ON
       -DWITH_CARBON=OFF
