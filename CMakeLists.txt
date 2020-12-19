@@ -654,12 +654,20 @@ elseif(BUILD_OPENSSL AND APPLE)
     set(ssl_flags ${ssl_flags} -isysroot${CMAKE_OSX_SYSROOT} -I/usr/include -Wl,-syslibroot,${CMAKE_OSX_SYSROOT})
   endif()
 
+  if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+    set(ssl_target "darwin64-arm64-cc")
+  else()
+    set(ssl_target "darwin64-x86_64-cc")
+  endif()
+
   ExternalProject_Add(
     openssl
     URL https://www.openssl.org/source/openssl-1.0.2r.tar.gz
     URL_HASH SHA256=ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6
 
-    CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-darwin-arm64.patch
+
+    CONFIGURE_COMMAND /usr/bin/perl ./Configure ${ssl_target} --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
