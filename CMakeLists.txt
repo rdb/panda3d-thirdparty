@@ -709,6 +709,15 @@ if(BUILD_OPENEXR)
 endif()
 
 if(BUILD_FFMPEG AND NOT WIN32)
+  set(ffmpeg_osx_flags)
+  if(APPLE)
+    set(ffmpeg_osx_flags "${ffmpeg_osx_flags} -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET} -isysroot ${CMAKE_OSX_SYSROOT}")
+
+    foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+      set(ffmpeg_osx_flags "${ffmpeg_osx_flags} -arch ${arch}")
+    endforeach()
+  endif()
+
   EXTERNALPROJECT_ADD(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
@@ -716,6 +725,15 @@ if(BUILD_FFMPEG AND NOT WIN32)
     URL_HASH SHA256=2838c37bd35dba6e9b08ebe4e6c11dedbe2d9909583e3c2b9e7a1ad3ce2a9607
 
     CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect
+        "--cc=${CMAKE_C_COMPILER}"
+        "--cxx=${CMAKE_CXX_COMPILER}"
+        "--ar=${CMAKE_C_COMPILER_AR}"
+        "--ranlib=${CMAKE_C_COMPILER_RANLIB}"
+        "--nm=${CMAKE_NM}"
+        "--strip=${CMAKE_STRIP}"
+        "--extra-cflags=${CMAKE_C_FLAGS} ${ffmpeg_osx_flags}"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} ${ffmpeg_osx_flags}"
+        "--extra-ldflags=${ffmpeg_osx_flags}"
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
