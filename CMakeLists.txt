@@ -53,8 +53,15 @@ option(BUILD_OPENCV "Build OpenCV" OFF)
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
-  string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
-  list(GET WORDS 2 VCVER)
+  if(MSVC_TOOLSET_VERSION)
+    math(EXPR VCVER "${MSVC_TOOLSET_VERSION} / 10" OUTPUT_FORMAT DECIMAL)
+  elseif(NOT (MSVC_VERSION LESS 1900))
+    set(VCVER 14)
+  else()
+    string(REPLACE " " ";" WORDS ${CMAKE_GENERATOR})
+    list(GET WORDS 2 VCVER)
+  endif()
+
   set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/win-libs-vc${VCVER})
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
