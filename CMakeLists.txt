@@ -244,7 +244,7 @@ if(BUILD_HARFBUZZ)
   ExternalProject_Add(
     freetype-nohb
     DEPENDS zlib
-    URL https://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
+    URL http://www.panda3d.org/download/noversion/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
@@ -288,7 +288,7 @@ if(BUILD_FREETYPE)
   ExternalProject_Add(
     freetype
     DEPENDS zlib harfbuzz
-    URL https://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
+    URL http://www.panda3d.org/download/noversion/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
