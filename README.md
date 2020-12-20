@@ -5,16 +5,16 @@ Usage example:
 
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015 Win64" ..
+    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A x64 ..
     cmake --build . --config Release
 
 To build with Visual Studio 2015 for 64-bit Windows XP, change the command to:
 
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=5.2 -T v140_xp ..
+    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A x64 -DCMAKE_SYSTEM_VERSION=5.2 -T v140_xp ..
 
 To build with Visual Studio 2015 for 32-bit Windows XP, change the command to:
 
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -DCMAKE_SYSTEM_VERSION=5.1 -T v140_xp ..
+    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A Win32 -DCMAKE_SYSTEM_VERSION=5.1 -T v140_xp ..
 
 Some packages are still forthcoming.  The included packages are ticked.
 - [x] artoolkit
