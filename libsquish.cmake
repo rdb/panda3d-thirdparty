@@ -3,7 +3,6 @@ project(squish)
 
 # By default, enable SSE2 instructions on x64.
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(DEFAULT_SSE ON)
   if(APPLE AND CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
     set(DEFAULT_SSE OFF)
   else()
