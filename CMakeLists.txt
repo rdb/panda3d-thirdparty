@@ -659,6 +659,8 @@ elseif(BUILD_OPENSSL AND APPLE)
 
   if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
     set(ssl_target "darwin64-arm64-cc")
+  elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "i386")
+    set(ssl_target "darwin-i386-cc")
   else()
     set(ssl_target "darwin64-x86_64-cc")
   endif()
