@@ -302,11 +302,6 @@ if(BUILD_FREETYPE)
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
     INSTALL_DIR ${THIRDPARTY_DIR}/freetype
   )
-
-  ExternalProject_Add_Step(freetype remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
-    DEPENDEES install
-  )
 endif()
 
 if(BUILD_VORBIS)
