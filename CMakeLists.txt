@@ -400,7 +400,7 @@ if(BUILD_JPEG)
   ExternalProject_Add(
     jpeg
     URL http://www.ijg.org/files/jpegsrc.v9b.tar.gz
-    URL_HASH SHA256=240fd398da741669bf3c90366f58452ea59041cacc741a489b99f2f6a0bad052
+    URL_HASH SHA256=58ecf07d183dd4684d6d943d4b8cd4558cf024421036fa16b39334f9ebb393da
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg.cmake <SOURCE_DIR>/CMakeLists.txt
           COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg-jconfig.h.cmake <SOURCE_DIR>/jconfig.h.cmake
