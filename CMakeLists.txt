@@ -808,7 +808,7 @@ if(BUILD_SPIRV_TOOLS)
   ExternalProject_Add(
     spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG 05836bdba63e7debce9fa9feaed42f20cd43af9d
+    GIT_TAG 75b30a659c8a4979104986652c54cc421fc51129
 
     BUILD_COMMAND cmake -E echo "Skipping build step."
     INSTALL_COMMAND cmake -E echo "Skipping install step."
@@ -819,7 +819,7 @@ if(BUILD_SPIRV_TOOLS)
     spirv-tools
     DEPENDS spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG 56d0f50357a192602216bfc4873e714905323e35
+    GIT_TAG c79edd260c2b503f0eca57310057b4a100999cc5
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
