@@ -403,8 +403,8 @@ endif()
 if(BUILD_JPEG)
   ExternalProject_Add(
     jpeg
-    URL http://www.ijg.org/files/jpegsrc.v9b.tar.gz
-    URL_HASH SHA256=58ecf07d183dd4684d6d943d4b8cd4558cf024421036fa16b39334f9ebb393da
+    URL http://www.panda3d.org/download/noversion/jpegsrc.v9b.tar.gz
+    URL_HASH SHA256=566241ad815df935390b341a5d3d15a73a4000e5aab40c58505324c2855cbbb8
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg.cmake <SOURCE_DIR>/CMakeLists.txt
           COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libjpeg-jconfig.h.cmake <SOURCE_DIR>/jconfig.h.cmake
