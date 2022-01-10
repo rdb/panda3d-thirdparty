@@ -697,11 +697,12 @@ if(BUILD_OPENEXR)
     openexr
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/openexr/openexr.git
-    GIT_TAG dcaf5fdb4d1244d8e60a58832cfe9c54734a2257 #v2.2.1
-    URL https://github.com/openexr/openexr/archive/v2.2.1.tar.gz
-    URL_HASH SHA256=63ebc7677d63ad59f1ec205d149dff1da31e7e3c8e78e944458b1d371c7e2f3c
+    GIT_TAG 3caf47dac47956750b9af4711862ef8acc569015 #v2.2.2
+    URL https://github.com/openexr/openexr/archive/v2.2.2.tar.gz
+    URL_HASH SHA256=f99dab62c4275cd30dc48ab3cf27db892d7cd76b09e6606ffb90f7b05863566e
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
+          COMMAND patch -N -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openexr-2.2.2.patch
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
