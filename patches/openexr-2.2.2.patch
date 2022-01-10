@@ -1,12 +1,14 @@
 diff --git a/IlmBase/CMakeLists.txt b/IlmBase/CMakeLists.txt
-index 3d2c7245..1ba84bca 100644
+index 3d2c7245..ab4733b9 100644
 --- a/IlmBase/CMakeLists.txt
 +++ b/IlmBase/CMakeLists.txt
-@@ -10,6 +10,7 @@ SET(ILMBASE_VERSION_PATCH "1")
+@@ -10,6 +10,9 @@ SET(ILMBASE_VERSION_PATCH "1")
  SET(ILMBASE_VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
  SET(ILMBASE_VERSION_API ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
  
-+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++if(NOT MSVC)
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++endif()
  
  ENABLE_TESTING()
  
@@ -50,14 +52,16 @@ index 6f9714dd..5f583aaa 100644
  
  IF(BUILD_SHARED_LIBS)
 diff --git a/OpenEXR/CMakeLists.txt b/OpenEXR/CMakeLists.txt
-index 8c0a3856..62e55503 100644
+index 8c0a3856..d39635de 100644
 --- a/OpenEXR/CMakeLists.txt
 +++ b/OpenEXR/CMakeLists.txt
-@@ -9,6 +9,7 @@ SET(OPENEXR_VERSION_PATCH "0")
+@@ -9,6 +9,9 @@ SET(OPENEXR_VERSION_PATCH "0")
  SET(OPENEXR_VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
  SET(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
  
-+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++if(NOT MSVC)
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++endif()
  
  # enable the tests
  ENABLE_TESTING()
@@ -74,28 +78,31 @@ index 0afe1490..bf3dfa4f 100644
  #include "ImfNamespace.h"
  
 diff --git a/OpenEXR_Viewers/CMakeLists.txt b/OpenEXR_Viewers/CMakeLists.txt
-index 5a21f540..d73df203 100644
+index 5a21f540..81169443 100644
 --- a/OpenEXR_Viewers/CMakeLists.txt
 +++ b/OpenEXR_Viewers/CMakeLists.txt
-@@ -9,6 +9,8 @@ SET(OPENEXR_VERSION_PATCH "0")
+@@ -9,6 +9,10 @@ SET(OPENEXR_VERSION_PATCH "0")
  SET(OPENEXR_VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH})
  SET(OPENEXR_VERSION_API ${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR})
  
-+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++if(NOT MSVC)
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++endif()
 +
  
  # distro building 
  SET(CPACK_PACKAGE_VERSION_MAJOR "${OPENEXR_VERSION_MAJOR}")
 diff --git a/PyIlmBase/CMakeLists.txt b/PyIlmBase/CMakeLists.txt
-index a76d1554..5d5664f8 100644
+index a76d1554..cadd36b9 100644
 --- a/PyIlmBase/CMakeLists.txt
 +++ b/PyIlmBase/CMakeLists.txt
-@@ -9,6 +9,7 @@ SET(ILMBASE_VERSION_PATCH "0")
+@@ -9,6 +9,9 @@ SET(ILMBASE_VERSION_PATCH "0")
  SET(ILMBASE_VERSION ${ILMBASE_VERSION_MAJOR}.${ILMBASE_VERSION_MINOR}.${ILMBASE_VERSION_PATCH})
  SET(ILMBASE_VERSION_API ${ILMBASE_VERSION_MAJOR}_${ILMBASE_VERSION_MINOR})
  
-+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++if(NOT MSVC)
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-deprecated")
++endif()
  
  # enable the tests
  ENABLE_TESTING()
-
