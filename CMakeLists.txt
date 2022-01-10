@@ -742,8 +742,8 @@ if(BUILD_FFMPEG AND NOT WIN32)
         "--ranlib=${CMAKE_C_COMPILER_RANLIB}"
         "--nm=${CMAKE_NM}"
         "--strip=${CMAKE_STRIP}"
-        "--extra-cflags=${CMAKE_C_FLAGS} ${ffmpeg_osx_flags}"
-        "--extra-cxxflags=${CMAKE_CXX_FLAGS} ${ffmpeg_osx_flags}"
+        "--extra-cflags=${CMAKE_C_FLAGS} ${ffmpeg_osx_flags} -Wno-attributes"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} ${ffmpeg_osx_flags} -Wno-attributes"
         "--extra-ldflags=${ffmpeg_osx_flags}"
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
