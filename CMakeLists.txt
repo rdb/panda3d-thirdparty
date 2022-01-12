@@ -380,6 +380,8 @@ if(BUILD_OPENAL)
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
     GIT_TAG 6761218e51699f46bf25c377e65b3e9ea5e434b9 # 1.19.1
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openal-soft-1.19.1-fcommon.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DLIBTYPE=STATIC
       -DALSOFT_HRTF_DEFS=OFF
