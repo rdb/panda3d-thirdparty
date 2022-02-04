@@ -50,6 +50,7 @@ option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 option(BUILD_OPENCV "Build OpenCV" OFF)
+option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
@@ -887,5 +888,21 @@ if(BUILD_OPENCV)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
+  )
+endif()
+
+if(BUILD_MIMALLOC)
+  ExternalProject_Add(
+    mimalloc
+    GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
+    GIT_TAG v2.0.3
+
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DMI_BUILD_SHARED=OFF
+      -DMI_BUILD_OBJECT=OFF
+      -DMI_BUILD_TESTS=OFF
+      -DMI_BUILD_STATIC=ON
+      -DMI_INSTALL_TOPLEVEL=ON
+    INSTALL_DIR ${THIRDPARTY_DIR}/mimalloc
   )
 endif()
