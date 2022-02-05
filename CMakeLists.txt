@@ -792,17 +792,69 @@ if(BUILD_OPENEXR)
   )
 endif()
 
-if(BUILD_FFMPEG AND NOT WIN32)
-  set(ffmpeg_osx_flags)
-  if(APPLE)
-    set(ffmpeg_osx_flags "${ffmpeg_osx_flags} -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET} -isysroot ${CMAKE_OSX_SYSROOT}")
+if(BUILD_FFMPEG AND APPLE)
+  set(ffmpeg_osx_flags "${ffmpeg_osx_flags} -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET} -isysroot ${CMAKE_OSX_SYSROOT}")
 
-    foreach(arch ${CMAKE_OSX_ARCHITECTURES})
-      set(ffmpeg_osx_flags "${ffmpeg_osx_flags} -arch ${arch}")
-    endforeach()
-  endif()
+  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+    if(arch STREQUAL "arm64")
+      set(configure_flags --enable-cross-compile --arch=arm64 --target-os=darwin)
+    else()
+      set(configure_flags)
+    endif()
 
-  EXTERNALPROJECT_ADD(
+    ExternalProject_Add(
+      ffmpeg-${arch}
+      DEPENDS ogg vorbis freetype zlib
+      URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
+      URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
+
+      CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect ${configure_flags}
+        "--cc=${CMAKE_C_COMPILER}"
+        "--cxx=${CMAKE_CXX_COMPILER}"
+        "--ar=${CMAKE_C_COMPILER_AR}"
+        "--ranlib=${CMAKE_C_COMPILER_RANLIB}"
+        "--nm=${CMAKE_NM}"
+        "--strip=${CMAKE_STRIP}"
+        "--extra-cflags=${CMAKE_C_FLAGS} ${ffmpeg_osx_flags} -arch ${arch} -Wno-attributes"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} ${ffmpeg_osx_flags} -arch ${arch} -Wno-attributes"
+        "--extra-ldflags=${ffmpeg_osx_flags} -arch ${arch}"
+      BUILD_COMMAND ${MAKE}
+      BUILD_IN_SOURCE 1
+
+      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${arch}
+    )
+  endforeach()
+
+  list(LENGTH CMAKE_OSX_ARCHITECTURES num_archs)
+  list(GET CMAKE_OSX_ARCHITECTURES 0 first_arch)
+
+  foreach(lib avcodec avdevice avfilter avformat avutil swresample swscale)
+    if(num_archs EQUAL 1)
+      set(lib${lib}_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${first_arch}/lib/lib${lib}.a" "${THIRDPARTY_DIR}/openssl/lib/lib${lib}.a")
+    else()
+      set(lib${lib}_command lipo -create -output "${THIRDPARTY_DIR}/ffmpeg/lib/lib${lib}.a")
+      foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+        set(lib${lib}_command ${lib${lib}_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${arch}/lib/lib${lib}.a")
+      endforeach()
+    endif()
+  endforeach()
+
+  add_custom_target(ffmpeg ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/ffmpeg/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${first_arch}/include" "${THIRDPARTY_DIR}/ffmpeg/include"
+    COMMAND ${libavcodec_command}
+    COMMAND ${libavdevice_command}
+    COMMAND ${libavformat_command}
+    COMMAND ${libavutil_command}
+    COMMAND ${libswresample_command}
+    COMMAND ${libswscale_command}
+  )
+  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+    add_dependencies(ffmpeg ffmpeg-${arch})
+  endforeach()
+
+elseif(BUILD_FFMPEG AND NOT WIN32)
+  ExternalProject_Add(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
     URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
@@ -815,9 +867,8 @@ if(BUILD_FFMPEG AND NOT WIN32)
         "--ranlib=${CMAKE_C_COMPILER_RANLIB}"
         "--nm=${CMAKE_NM}"
         "--strip=${CMAKE_STRIP}"
-        "--extra-cflags=${CMAKE_C_FLAGS} ${ffmpeg_osx_flags} -Wno-attributes"
-        "--extra-cxxflags=${CMAKE_CXX_FLAGS} ${ffmpeg_osx_flags} -Wno-attributes"
-        "--extra-ldflags=${ffmpeg_osx_flags}"
+        "--extra-cflags=${CMAKE_C_FLAGS} -Wno-attributes"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} -Wno-attributes"
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
