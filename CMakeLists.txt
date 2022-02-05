@@ -223,6 +223,8 @@ if(BUILD_BULLET)
     #URL https://github.com/bulletphysics/bullet3/archive/2.83.7.tar.gz
     #URL_HASH SHA256=919087c764d0e93555c6ef0830c8951a9caafea99f52ac8b366e96adbe0112ed
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/bullet-btvector3-shuffle.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DINSTALL_LIBS=ON
       -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON
