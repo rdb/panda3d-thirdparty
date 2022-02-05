@@ -191,6 +191,8 @@ if(BUILD_PNG)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/libpng"
     DEPENDEES install
   )
+elseif(BUILD_SQUISH)
+  add_custom_target(png)
 endif()
 
 if(BUILD_ASSIMP)
