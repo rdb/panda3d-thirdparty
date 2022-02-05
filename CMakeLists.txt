@@ -25,7 +25,9 @@ else()
   set(NOT_APPLE ${DEFAULT_ENABLE})
 endif()
 
-option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
+if(NOT ANDROID)
+  option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
+endif()
 option(BUILD_PNG "Build libpng (requires zlib)" ${DEFAULT_ENABLE})
 option(BUILD_ASSIMP "Build assimp (requires zlib)" ${NOT_APPLE})
 option(BUILD_BULLET "Build bullet" ${DEFAULT_ENABLE})
@@ -136,7 +138,10 @@ if(APPLE)
   )
 endif(APPLE)
 
-if(BUILD_ZLIB)
+if(ANDROID)
+  # Android ships with zlib.
+  add_custom_target(zlib)
+elseif(BUILD_ZLIB)
   ExternalProject_Add(
     zlib
     GIT_REPOSITORY https://github.com/madler/zlib.git
