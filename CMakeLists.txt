@@ -1,7 +1,7 @@
 # Many of this is based on the scripts in the Polycode project.  Many thanks
 # to the respective authors for going through the work of figuring this out!
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.3)
 
 # Set defaults.  Must be before project().
 if(APPLE)
@@ -682,34 +682,74 @@ elseif(BUILD_OPENSSL AND APPLE)
     set(ssl_flags ${ssl_flags} -isysroot${CMAKE_OSX_SYSROOT} -I/usr/include -Wl,-syslibroot,${CMAKE_OSX_SYSROOT})
   endif()
 
-  if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-    set(ssl_target "darwin64-arm64-cc")
-  elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "i386")
-    set(ssl_target "darwin-i386-cc")
-  else()
-    set(ssl_target "darwin64-x86_64-cc")
+  if("arm64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    ExternalProject_Add(
+      openssl-arm64
+      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
+      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+
+      PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-darwin-arm64.patch
+
+      CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-arm64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
+      BUILD_COMMAND ${MAKE}
+      BUILD_IN_SOURCE 1
+
+      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-arm64
+    )
   endif()
 
-  ExternalProject_Add(
-    openssl
-    URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-    URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+  if("x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    ExternalProject_Add(
+      openssl-x86_64
+      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
+      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
 
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-darwin-arm64.patch
+      CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
+      BUILD_COMMAND ${MAKE}
+      BUILD_IN_SOURCE 1
 
-    CONFIGURE_COMMAND /usr/bin/perl ./Configure ${ssl_target} --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
-    BUILD_COMMAND ${MAKE}
-    BUILD_IN_SOURCE 1
+      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-x86_64
+    )
+  endif()
 
-    INSTALL_DIR ${THIRDPARTY_DIR}/openssl
+  if("i386" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    ExternalProject_Add(
+      openssl-i386
+      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
+      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+
+      CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
+      BUILD_COMMAND ${MAKE}
+      BUILD_IN_SOURCE 1
+
+      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-i386
+    )
+  endif()
+
+  list(LENGTH CMAKE_OSX_ARCHITECTURES num_archs)
+  list(GET CMAKE_OSX_ARCHITECTURES 0 first_arch)
+
+  if(num_archs EQUAL 1)
+    set(libcrypto_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/lib/libcrypto.a" "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a")
+    set(libssl_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/lib/libssl.a" "${THIRDPARTY_DIR}/openssl/lib/libssl.a")
+  else()
+    set(libcrypto_command lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a")
+    set(libssl_command lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libssl.a")
+    foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+      set(libcrypto_command ${libcrypto_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/openssl-${arch}/lib/libcrypto.a")
+      set(libssl_command ${libssl_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/openssl-${arch}/lib/libssl.a")
+    endforeach()
+  endif()
+
+  add_custom_target(openssl ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/openssl/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/include" "${THIRDPARTY_DIR}/openssl/include"
+    COMMAND ${libcrypto_command}
+    COMMAND ${libssl_command}
   )
-
-  ExternalProject_Add_Step(openssl remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
-    DEPENDEES install
-  )
+  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+    add_dependencies(openssl openssl-${arch})
+  endforeach()
 endif()
 
 if(BUILD_OPENEXR)
