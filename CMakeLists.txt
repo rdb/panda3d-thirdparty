@@ -301,6 +301,8 @@ if(BUILD_FREETYPE)
     URL http://www.panda3d.org/download/noversion/freetype-2.7.1.tar.gz
     URL_HASH SHA256=162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/freetype-2.7.1-harfbuzz-icu.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib;${THIRDPARTY_DIR}/harfbuzz
       -DWITH_HarfBuzz=ON
