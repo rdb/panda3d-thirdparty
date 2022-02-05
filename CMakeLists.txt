@@ -853,6 +853,41 @@ if(BUILD_FFMPEG AND APPLE)
     add_dependencies(ffmpeg ffmpeg-${arch})
   endforeach()
 
+elseif(BUILD_FFMPEG AND ANDROID)
+  if(CMAKE_ANDROID_ARCH STREQUAL "arm")
+    set(ffmpeg_arch armv7-a)
+    set(ffmpeg_target armv7a-linux-androideabi${CMAKE_SYSTEM_VERSION})
+  else()
+    set(ffmpeg_arch ${CMAKE_ANDROID_ARCH})
+    set(ffmpeg_target ${CMAKE_ANDROID_ARCH_TRIPLE}${CMAKE_SYSTEM_VERSION})
+  endif()
+
+  ExternalProject_Add(
+    ffmpeg
+    DEPENDS ogg vorbis freetype zlib
+    URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
+    URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
+
+    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect --enable-cross-compile --arch=${ffmpeg_arch} --target-os=android
+        "--cc=${CMAKE_C_COMPILER}"
+        "--cxx=${CMAKE_CXX_COMPILER}"
+        "--ar=${CMAKE_AR}"
+        "--ranlib=${CMAKE_RANLIB}"
+        "--nm=${CMAKE_NM}"
+        "--strip=${CMAKE_STRIP}"
+        "--extra-cflags=${CMAKE_C_FLAGS} -target ${ffmpeg_target}  -Wno-attributes"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} -target ${ffmpeg_target} -Wno-attributes"
+        "--extra-ldflags=-target ${ffmpeg_target}"
+    BUILD_COMMAND ${MAKE}
+    BUILD_IN_SOURCE 1
+
+    INSTALL_DIR ${THIRDPARTY_DIR}/ffmpeg
+  )
+
+  ExternalProject_Add_Step(ffmpeg remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
+  )
 elseif(BUILD_FFMPEG AND NOT WIN32)
   ExternalProject_Add(
     ffmpeg
