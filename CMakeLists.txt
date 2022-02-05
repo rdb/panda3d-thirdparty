@@ -450,6 +450,7 @@ if(BUILD_SQUISH)
     URL_HASH SHA256=aec3428badafdbb3b0ed1ea3a385a8029e65694282459f61b4a538963e8cada3
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libsquish.cmake <SOURCE_DIR>/CMakeLists.txt
+          COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/squish-1.10-sse.diff
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/png
