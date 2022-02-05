@@ -895,7 +895,7 @@ if(BUILD_MIMALLOC)
   ExternalProject_Add(
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
-    GIT_TAG v2.0.3
+    GIT_TAG f412df7a2b64421e1f1d61fde6055a6ea288e8f5 # v2.0.3
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DMI_BUILD_SHARED=OFF
@@ -903,6 +903,7 @@ if(BUILD_MIMALLOC)
       -DMI_BUILD_TESTS=OFF
       -DMI_BUILD_STATIC=ON
       -DMI_INSTALL_TOPLEVEL=ON
+      -DMI_OVERRIDE=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/mimalloc
   )
 endif()

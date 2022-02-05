@@ -27,6 +27,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] freetype
 - [x] harfbuzz
 - [x] jpeg
+- [x] mimalloc
 - [x] nvidiacg
 - [x] ode
 - [x] openal
