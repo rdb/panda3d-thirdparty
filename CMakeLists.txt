@@ -655,6 +655,8 @@ if(BUILD_OPENSSL AND MSVC)
     BUILD_COMMAND nmake -f ms\\nt.mak
     BUILD_IN_SOURCE 1
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-no-pdb.patch
+
     INSTALL_COMMAND nmake -f ms\\nt.mak install
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
