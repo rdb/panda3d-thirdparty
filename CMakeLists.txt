@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.3)
 
 # Set defaults.  Must be before project().
 if(APPLE)
-  set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "")
+  set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "")
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 endif()
