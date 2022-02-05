@@ -805,8 +805,8 @@ if(BUILD_FFMPEG AND NOT WIN32)
   EXTERNALPROJECT_ADD(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
-    URL https://ffmpeg.org/releases/ffmpeg-3.2.4.tar.gz
-    URL_HASH SHA256=2838c37bd35dba6e9b08ebe4e6c11dedbe2d9909583e3c2b9e7a1ad3ce2a9607
+    URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
+    URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
 
     CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect
         "--cc=${CMAKE_C_COMPILER}"
