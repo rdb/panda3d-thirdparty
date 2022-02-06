@@ -133,4 +133,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{matrix.dir}}
-        path: thirdparty
+        path: ${{matrix.archive}}
