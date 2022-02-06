@@ -46,7 +46,7 @@ jobs:
   # install
   - task: CopyFiles@2
     inputs:
-      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc15$(ARCHITECTURE_SUFFIX)'
+      sourceFolder: '$(Build.SourcesDirectory)/win-libs-vc14$(ARCHITECTURE_SUFFIX)'
       targetFolder: '$(Build.BinariesDirectory)/thirdparty/win-libs-vc14$(ARCHITECTURE_SUFFIX)'
 
   # packaging
