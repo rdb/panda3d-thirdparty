@@ -128,6 +128,11 @@ set(COMMON_CMAKE_ARGS
   -Wno-dev
 )
 
+if(WIN32)
+  # Add tools like patch.exe and nasm.exe to the PATH
+  list(APPEND CMAKE_MSVCIDE_RUN_PATH "${CMAKE_CURRENT_LIST_DIR}/win-util")
+endif()
+
 if(APPLE)
   # Prevent the semicolon from becoming a space in the command.
   string(REPLACE ";" "$<SEMICOLON>" archs "${CMAKE_OSX_ARCHITECTURES}")
