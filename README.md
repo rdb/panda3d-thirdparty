@@ -6,7 +6,12 @@ Usage example on Windows:
     mkdir build
     cd build
     cmake -G"Visual Studio 16 2019" -A x64 ..
+
+    # to build everything:
     cmake --build . --config Release
+
+    # to just build ffmpeg and its dependencies:
+    cmake --build . --config Release --target ffmpeg
 
 Usage example on other systems:
 
@@ -42,6 +47,11 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] vrpn
 - [x] zlib
 
-A package can be explicitly disabled using the `BUILD_*` options, eg. `-DBUILD_VRPN=OFF` disables building VRPN.  Note that some packages have dependencies on other packages, so not all combinations are valid.
 
-To build nothing but eg. vrpn, specify: `-DDISABLE_ALL=ON -DBUILD_VRPN=ON`.  This only affects the initial configuration.  However, it is easier to just specify a target to the build command, such as using `make vrpn`, since this will do dependency resolution properly.
+If you want to build a subset of packages, it is easiest to just pass the name
+of the target to the build system.  For example, to just build VRPN, you can
+call `make vrpn` or add the `--target vrpn` flag to `cmake --build`.
+This will still build its dependencies if one package depends on another one.
+A way to force a certain package to be disabled is by using the `BUILD_*`
+options, eg. `-DBUILD_VRPN=OFF` disables building VRPN, even if it is a
+dependency of another package.
