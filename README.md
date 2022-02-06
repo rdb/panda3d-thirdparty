@@ -1,20 +1,20 @@
 This repository contains a CMake script to build the thirdparty packages that
 are necessary for building Panda3D.
 
-Usage example:
+Usage example on Windows:
 
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A x64 ..
+    cmake -G"Visual Studio 16 2019" -A x64 ..
     cmake --build . --config Release
 
-To build with Visual Studio 2015 for 64-bit Windows XP, change the command to:
+Usage example on other systems:
 
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A x64 -DCMAKE_SYSTEM_VERSION=5.2 -T v140_xp ..
-
-To build with Visual Studio 2015 for 32-bit Windows XP, change the command to:
-
-    cmake -DCMAKE_BUILD_TYPE=Release -G"Visual Studio 14 2015" -A Win32 -DCMAKE_SYSTEM_VERSION=5.1 -T v140_xp ..
+    mkdir build
+    cd build
+    cmake ..
+    make ffmpeg # just build ffmpeg and dependencies
+    make all # build everything
 
 Some packages are still forthcoming.  The included packages are ticked.
 - [x] artoolkit
@@ -28,7 +28,7 @@ Some packages are still forthcoming.  The included packages are ticked.
 - [x] harfbuzz
 - [x] jpeg
 - [x] mimalloc
-- [x] nvidiacg
+- [x] nvidiacg (except arm64 or Android)
 - [x] ode
 - [x] openal
 - [x] opencv (macOS only)
@@ -44,4 +44,4 @@ Some packages are still forthcoming.  The included packages are ticked.
 
 A package can be explicitly disabled using the `BUILD_*` options, eg. `-DBUILD_VRPN=OFF` disables building VRPN.  Note that some packages have dependencies on other packages, so not all combinations are valid.
 
-To build nothing but eg. vrpn, specify: `-DDISABLE_ALL=ON -DBUILD_VRPN=ON`.  This only affects the initial configuration.
+To build nothing but eg. vrpn, specify: `-DDISABLE_ALL=ON -DBUILD_VRPN=ON`.  This only affects the initial configuration.  However, it is easier to just specify a target to the build command, such as using `make vrpn`, since this will do dependency resolution properly.
