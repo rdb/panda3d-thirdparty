@@ -121,9 +121,14 @@ jobs:
       working-directory: thirdparty
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.config}} -j4
 
+    - name: Get Python (Windows)
+      if: runner.os == 'Windows'
+      working-directory: thirdparty
+      run: .\install-python.ps1 ${{matrix.dir}}
+
     - name: Make ZIP file
       if: endsWith(matrix.archive, '.zip')
-      run: 7z a ${{matrix.archive}} thirdparty/${{matrix.dir}}
+      run: 7z a ${{matrix.archive}} thirdparty/${{matrix.dir}} thirdparty/win-util thirdparty/win-python*/
 
     - name: Make tarball
       if: endsWith(matrix.archive, '.tar') || contains(matrix.archive, '.tar.')
