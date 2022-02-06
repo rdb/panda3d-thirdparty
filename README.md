@@ -23,7 +23,7 @@ Usage example on other systems:
 
 Some packages are still forthcoming.  The included packages are ticked.
 - [x] artoolkit
-- [x] assimp (except Mac)
+- [x] assimp
 - [x] bullet
 - [x] eigen
 - [x] fcollada

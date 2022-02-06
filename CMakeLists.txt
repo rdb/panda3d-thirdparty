@@ -29,7 +29,7 @@ if(NOT ANDROID)
   option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
 endif()
 option(BUILD_PNG "Build libpng (requires zlib)" ${DEFAULT_ENABLE})
-option(BUILD_ASSIMP "Build assimp (requires zlib)" ${NOT_APPLE})
+option(BUILD_ASSIMP "Build assimp (requires zlib)" ${DEFAULT_ENABLE})
 option(BUILD_BULLET "Build bullet" ${DEFAULT_ENABLE})
 option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ${DEFAULT_ENABLE})
 option(BUILD_FREETYPE "Build freetype (requires harfbuzz, zlib and png)" ${DEFAULT_ENABLE})
@@ -146,6 +146,8 @@ endif(APPLE)
 if(ANDROID)
   # Android ships with zlib.
   add_custom_target(zlib)
+  find_library(ZLIB_LIBRARY z)
+
 elseif(BUILD_ZLIB)
   ExternalProject_Add(
     zlib
@@ -167,6 +169,7 @@ elseif(BUILD_ZLIB)
       COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/zlib.lib"
       DEPENDEES install
     )
+    set(ZLIB_LIBRARY ${THIRDPARTY_DIR}/zlib/lib/zlibstatic.lib)
   elseif(APPLE)
     ExternalProject_Add_Step(zlib remove_extras
       COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.dylib"
@@ -174,6 +177,7 @@ elseif(BUILD_ZLIB)
                                          "<INSTALL_DIR>/lib/libz.1.2.11.dylib"
       DEPENDEES install
     )
+    set(ZLIB_LIBRARY ${THIRDPARTY_DIR}/zlib/lib/libz.a)
   else()
     ExternalProject_Add_Step(zlib remove_extras
       COMMAND ${CMAKE_COMMAND} -E remove "<INSTALL_DIR>/lib/libz.so"
@@ -181,7 +185,10 @@ elseif(BUILD_ZLIB)
                                          "<INSTALL_DIR>/lib/libz.so.1.2.11"
       DEPENDEES install
     )
+    set(ZLIB_LIBRARY ${THIRDPARTY_DIR}/zlib/lib/libz.a)
   endif()
+else()
+  set(ZLIB_LIBRARY ZLIB_LIBRARY-NOTFOUND)
 endif()
 
 if(BUILD_PNG)
@@ -218,7 +225,7 @@ if(BUILD_ASSIMP)
     assimp
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/assimp/assimp.git
-    GIT_TAG 837a0742c4c7b4ce470516d9b7586570afe741ea
+    GIT_TAG 8134cae998ec0e3a44a6ec8330b681f3981107b7 #v5.1.6
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
@@ -226,6 +233,9 @@ if(BUILD_ASSIMP)
       -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
       -DASSIMP_NO_EXPORT=ON
       -DLIBRARY_SUFFIX=
+      -DZLIB_LIBRARY_DBG=${ZLIB_LIBRARY}
+      -DZLIB_LIBRARY_REL=${ZLIB_LIBRARY}
+
     INSTALL_DIR ${THIRDPARTY_DIR}/assimp
   )
 
