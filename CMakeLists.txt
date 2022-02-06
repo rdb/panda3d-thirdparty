@@ -652,32 +652,30 @@ if(BUILD_OPENSSL AND MSVC)
 
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-    URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+    URL https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+    URL_HASH SHA256=f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96
 
-    CONFIGURE_COMMAND perl Configure ${ssl_config} no-asm no-shared --prefix=<INSTALL_DIR>
-              COMMAND ${CMAKE_CURRENT_LIST_DIR}/openssl-ms.bat ${ssl_config}
-    BUILD_COMMAND nmake -f ms\\nt.mak
+    CONFIGURE_COMMAND perl Configure ${ssl_config} no-shared --prefix=<INSTALL_DIR>
+    BUILD_COMMAND nmake build_libs
     BUILD_IN_SOURCE 1
 
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-no-pdb.patch
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.1.1-no-pdb.patch
 
-    INSTALL_COMMAND nmake -f ms\\nt.mak install
+    INSTALL_COMMAND nmake install_dev
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
   )
 
   ExternalProject_Add_Step(openssl remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
     DEPENDEES install
   )
 elseif(BUILD_OPENSSL AND NOT APPLE)
   ExternalProject_Add(
     openssl
-    URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-    URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+    URL https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+    URL_HASH SHA256=f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96
 
-    CONFIGURE_COMMAND ./config no-asm no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
+    CONFIGURE_COMMAND ./config no-shared --prefix=<INSTALL_DIR> ${CMAKE_C_FLAGS}
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
@@ -692,7 +690,7 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
   )
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
-                no-asm no-shared no-dso
+                no-shared no-dso
                 -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}
                 -Wno-nullability-completeness -Wno-expansion-to-defined)
 
@@ -703,10 +701,8 @@ elseif(BUILD_OPENSSL AND APPLE)
   if("arm64" IN_LIST CMAKE_OSX_ARCHITECTURES)
     ExternalProject_Add(
       openssl-arm64
-      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
-
-      PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openssl-1.0.2u-darwin-arm64.patch
+      URL https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+      URL_HASH SHA256=f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96
 
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-arm64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
@@ -719,8 +715,8 @@ elseif(BUILD_OPENSSL AND APPLE)
   if("x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
     ExternalProject_Add(
       openssl-x86_64
-      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+      URL https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+      URL_HASH SHA256=f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96
 
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
@@ -733,8 +729,8 @@ elseif(BUILD_OPENSSL AND APPLE)
   if("i386" IN_LIST CMAKE_OSX_ARCHITECTURES)
     ExternalProject_Add(
       openssl-i386
-      URL https://www.openssl.org/source/openssl-1.0.2u.tar.gz
-      URL_HASH SHA256=ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16
+      URL https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+      URL_HASH SHA256=f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96
 
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
