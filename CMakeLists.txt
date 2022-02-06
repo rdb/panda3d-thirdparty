@@ -540,6 +540,9 @@ if(BUILD_EIGEN)
     URL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.gz
     URL_HASH SHA256=7985975b787340124786f092b3a07d594b2e9cd53bbfe5f3d9b1daee7d55f56f
 
+    # Suppresses warning on MSVC
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/eigen-3.3.9-bad-alloc.patch
+
     # No need to build anything; just copy over the Eigen directory.
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
