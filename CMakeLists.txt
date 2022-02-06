@@ -532,8 +532,8 @@ endif()
 if(BUILD_EIGEN)
   ExternalProject_Add(
     eigen
-    URL https://gitlab.com/libeigen/eigen/-/archive/3.2.8/eigen-3.2.8.tar.gz
-    URL_HASH SHA256=64c54781cfe9eefef2792003ab04b271d4b2ec32eda6e9cdf120d7aad4ebb282
+    URL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.gz
+    URL_HASH SHA256=7985975b787340124786f092b3a07d594b2e9cd53bbfe5f3d9b1daee7d55f56f
 
     # No need to build anything; just copy over the Eigen directory.
     CONFIGURE_COMMAND ""
