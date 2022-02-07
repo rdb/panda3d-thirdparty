@@ -782,26 +782,18 @@ if(BUILD_OPENEXR)
   ExternalProject_Add(
     openexr
     DEPENDS zlib
-    GIT_REPOSITORY https://github.com/openexr/openexr.git
-    GIT_TAG 3caf47dac47956750b9af4711862ef8acc569015 #v2.2.2
-    URL https://github.com/openexr/openexr/archive/v2.2.2.tar.gz
-    URL_HASH SHA256=f99dab62c4275cd30dc48ab3cf27db892d7cd76b09e6606ffb90f7b05863566e
-
-    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/openexr.cmake <SOURCE_DIR>/CMakeLists.txt
-          COMMAND patch -N -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/openexr-2.2.2.patch
+    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/openexr.git
+    GIT_TAG e94d82b2165da4e2af167aa74630906202e3d43b #v3.1.4
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
-      -DNAMESPACE_VERSIONING=OFF
+      -DBUILD_TESTING=OFF
+      -DOPENEXR_BUILD_TOOLS=OFF
+      -DOPENEXR_INSTALL_TOOLS=OFF
+      -DOPENEXR_INSTALL_EXAMPLES=OFF
+      -DOPENEXR_INSTALL_PKG_CONFIG=OFF
+      -DIMATH_INSTALL_PKG_CONFIG=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/openexr
-  )
-
-  # Remove the extra bin and share directories it created.
-  ExternalProject_Add_Step(openexr remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
-    DEPENDEES install
   )
 endif()
 

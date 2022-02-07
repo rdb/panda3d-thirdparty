@@ -1,8 +1,0 @@
-add_subdirectory(IlmBase)
-include_directories(${CMAKE_BINARY_DIR}/IlmBase/config)
-include_directories(IlmBase/Half)
-include_directories(IlmBase/IlmThread)
-include_directories(IlmBase/Imath)
-include_directories(IlmBase/IexMath)
-include_directories(IlmBase/Iex)
-add_subdirectory(OpenEXR)

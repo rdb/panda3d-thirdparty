@@ -47,7 +47,6 @@ jobs:
             -DBUILD_FCOLLADA=OFF
             -DBUILD_VRPN=OFF
             -DBUILD_ARTOOLKIT=OFF
-            -DBUILD_OPENEXR=OFF
           archive: thirdparty-android-arm64.tar.xz
 
         - dir: android-libs-arm
@@ -64,7 +63,6 @@ jobs:
             -DBUILD_FCOLLADA=OFF
             -DBUILD_VRPN=OFF
             -DBUILD_ARTOOLKIT=OFF
-            -DBUILD_OPENEXR=OFF
           archive: thirdparty-android-arm.tar.xz
 
         - dir: android-libs-x86_64
@@ -81,7 +79,6 @@ jobs:
             -DBUILD_FCOLLADA=OFF
             -DBUILD_VRPN=OFF
             -DBUILD_ARTOOLKIT=OFF
-            -DBUILD_OPENEXR=OFF
           archive: thirdparty-android-x86_64.tar.xz
 
         - dir: android-libs-x86
@@ -98,7 +95,6 @@ jobs:
             -DBUILD_FCOLLADA=OFF
             -DBUILD_VRPN=OFF
             -DBUILD_ARTOOLKIT=OFF
-            -DBUILD_OPENEXR=OFF
           archive: thirdparty-android-x86.tar.xz
 
     runs-on: ${{ matrix.os }}
