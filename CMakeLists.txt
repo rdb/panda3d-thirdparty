@@ -53,6 +53,7 @@ option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 option(BUILD_OPENCV "Build OpenCV" OFF)
 option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
+option(BUILD_RECAST "Build Recast Navigation" ${DEFAULT_ENABLE})
 
 function(add_lipo_target)
   set(libs ${ARGV})
@@ -1053,5 +1054,16 @@ if(BUILD_MIMALLOC)
       -DMI_INSTALL_TOPLEVEL=ON
       -DMI_OVERRIDE=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/mimalloc
+  )
+endif()
+
+if(BUILD_RECAST)
+  ExternalProject_Add(
+          recast
+          GIT_REPOSITORY https://github.com/recastnavigation/recastnavigation.git
+          GIT_TAG c5cbd53024c8a9d8d097a4371215e3342d2fdc87
+
+          CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+          INSTALL_DIR ${THIRDPARTY_DIR}/recast
   )
 endif()
