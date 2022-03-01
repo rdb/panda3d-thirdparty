@@ -46,11 +46,7 @@ option(BUILD_NVIDIACG "Copy NVIDIA Cg Toolkit binaries" ${DEFAULT_ENABLE})
 option(BUILD_OPENSSL "Build OpenSSL" ${DEFAULT_ENABLE})
 option(BUILD_OPENEXR "Build OpenEXR" ${DEFAULT_ENABLE})
 option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAULT_ENABLE})
-option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
-option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
-option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 option(BUILD_OPENCV "Build OpenCV" OFF)
-option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
 
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
@@ -777,89 +773,6 @@ if(BUILD_FFMPEG AND NOT WIN32)
   )
 endif()
 
-if(BUILD_GLSLANG)
-  ExternalProject_Add(
-    glslang
-    GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG 6dc24ffa47174662a2599cc033069a10b77b46b8
-
-    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DBUILD_EXTERNAL=OFF
-      -DBUILD_SHARED_LIBS=OFF
-      -DBUILD_TESTING=OFF
-      -DENABLE_EXCEPTIONS=OFF
-      -DENABLE_GLSLANG_BINARIES=OFF
-      -DENABLE_HLSL=ON
-      -DENABLE_RTTI=OFF
-      -DENABLE_SPVREMAPPER=OFF
-    INSTALL_DIR ${THIRDPARTY_DIR}/glslang
-  )
-endif()
-
-if(BUILD_SPIRV_CROSS)
-  ExternalProject_Add(
-    spirv-cross
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG d2e1e7ba989135618f82bfeb6d97695d0d9bb9f5
-
-    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DSPIRV_CROSS_CLI=OFF
-      -DSPIRV_CROSS_ENABLE_CPP=OFF
-      -DSPIRV_CROSS_ENABLE_C_API=OFF
-      -DSPIRV_CROSS_ENABLE_GLSL=ON
-      -DSPIRV_CROSS_ENABLE_HLSL=ON
-      -DSPIRV_CROSS_ENABLE_MSL=ON
-      -DSPIRV_CROSS_ENABLE_REFLECT=OFF
-      -DSPIRV_CROSS_ENABLE_TESTS=OFF
-      -DSPIRV_CROSS_ENABLE_UTIL=OFF
-      -DSPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS=ON
-      -DSPIRV_CROSS_FORCE_PIC=ON
-      -DSPIRV_CROSS_SHARED=OFF
-      -DSPIRV_CROSS_STATIC=ON
-    INSTALL_DIR ${THIRDPARTY_DIR}/spirv-cross
-  )
-
-  ExternalProject_Add_Step(spirv-cross remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-    DEPENDEES install
-  )
-endif()
-
-if(BUILD_SPIRV_TOOLS)
-  ExternalProject_Add(
-    spirv-headers
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG 75b30a659c8a4979104986652c54cc421fc51129
-
-    BUILD_COMMAND cmake -E echo "Skipping build step."
-    INSTALL_COMMAND cmake -E echo "Skipping install step."
-    EXCLUDE_FROM_ALL TRUE
-  )
-
-  ExternalProject_Add(
-    spirv-tools
-    DEPENDS spirv-headers
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG c79edd260c2b503f0eca57310057b4a100999cc5
-
-    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
-      -DSPIRV_BUILD_COMPRESSION=OFF
-      -DSPIRV_SKIP_EXECUTABLES=ON
-      -DSPIRV_SKIP_TESTS=ON
-    INSTALL_DIR ${THIRDPARTY_DIR}/spirv-tools
-  )
-
-  ExternalProject_Add_Step(spirv-tools remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-opt"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-reduce"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-link"
-    DEPENDEES install
-  )
-endif()
-
 if(BUILD_OPENCV)
   ExternalProject_Add(
     opencv
@@ -905,22 +818,5 @@ if(BUILD_OPENCV)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
-  )
-endif()
-
-if(BUILD_MIMALLOC)
-  ExternalProject_Add(
-    mimalloc
-    GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
-    GIT_TAG f412df7a2b64421e1f1d61fde6055a6ea288e8f5 # v2.0.3
-
-    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-      -DMI_BUILD_SHARED=OFF
-      -DMI_BUILD_OBJECT=OFF
-      -DMI_BUILD_TESTS=OFF
-      -DMI_BUILD_STATIC=ON
-      -DMI_INSTALL_TOPLEVEL=ON
-      -DMI_OVERRIDE=OFF
-    INSTALL_DIR ${THIRDPARTY_DIR}/mimalloc
   )
 endif()
