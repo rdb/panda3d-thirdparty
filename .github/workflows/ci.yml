@@ -13,14 +13,14 @@ jobs:
         - dir: win-libs-vc14-x64
           generator: Visual Studio 16 2019
           config: Release
-          os: windows-latest
+          os: windows-2019
           args: -A x64
           archive: thirdparty-win64.zip
 
         - dir: win-libs-vc14
           generator: Visual Studio 16 2019
           config: Release
-          os: windows-latest
+          os: windows-2019
           args: -A Win32
           archive: thirdparty-win32.zip
 
