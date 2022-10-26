@@ -301,6 +301,8 @@ if(BUILD_HARFBUZZ)
     URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.6.4.tar.xz
     URL_HASH SHA256=9413b8d96132d699687ef914ebb8c50440efc87b3f775d25856d7ec347c03c12
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/harfbuzz-2.6-remove-dead-code.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
       -DHB_HAVE_FREETYPE=ON
