@@ -866,10 +866,8 @@ if(BUILD_FFMPEG AND APPLE)
 elseif(BUILD_FFMPEG AND ANDROID)
   if(CMAKE_ANDROID_ARCH STREQUAL "arm")
     set(ffmpeg_arch armv7-a)
-    set(ffmpeg_target armv7a-linux-androideabi${CMAKE_SYSTEM_VERSION})
   else()
     set(ffmpeg_arch ${CMAKE_ANDROID_ARCH})
-    set(ffmpeg_target ${CMAKE_ANDROID_ARCH_TRIPLE}${CMAKE_SYSTEM_VERSION})
   endif()
 
   ExternalProject_Add(
@@ -885,9 +883,9 @@ elseif(BUILD_FFMPEG AND ANDROID)
         "--ranlib=${CMAKE_RANLIB}"
         "--nm=${CMAKE_NM}"
         "--strip=${CMAKE_STRIP}"
-        "--extra-cflags=${CMAKE_C_FLAGS} -target ${ffmpeg_target}  -Wno-attributes"
-        "--extra-cxxflags=${CMAKE_CXX_FLAGS} -target ${ffmpeg_target} -Wno-attributes"
-        "--extra-ldflags=-target ${ffmpeg_target}"
+        "--extra-cflags=${CMAKE_C_FLAGS} -target ${CMAKE_C_COMPILER_TARGET}  -Wno-attributes"
+        "--extra-cxxflags=${CMAKE_CXX_FLAGS} -target ${CMAKE_CXX_COMPILER_TARGET} -Wno-attributes"
+        "--extra-ldflags=-target ${CMAKE_C_COMPILER_TARGET}"
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
