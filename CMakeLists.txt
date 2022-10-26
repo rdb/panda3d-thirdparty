@@ -298,8 +298,8 @@ if(BUILD_HARFBUZZ)
   ExternalProject_Add(
     harfbuzz
     DEPENDS freetype-nohb
-    URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.6.4.tar.xz
-    URL_HASH SHA256=9413b8d96132d699687ef914ebb8c50440efc87b3f775d25856d7ec347c03c12
+    URL https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.6.7.tar.xz
+    URL_HASH SHA256=49e481d06cdff97bf68d99fa26bdf785331f411614485d892ea4c78eb479b218
 
     PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/harfbuzz-2.6-remove-dead-code.patch
 
