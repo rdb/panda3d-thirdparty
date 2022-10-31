@@ -100,8 +100,8 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_C_FLAGS "-fpic")
-  set(CMAKE_CXX_FLAGS "-fpic")
+  set(CMAKE_C_FLAGS "-fpic -Wno-error=deprecated-declarations")
+  set(CMAKE_CXX_FLAGS "-fpic -Wno-error=deprecated-declarations")
 endif()
 
 message("thirdparty packages will be installed to ${THIRDPARTY_DIR}")
@@ -192,6 +192,12 @@ else()
 endif()
 
 if(BUILD_PNG)
+  set(png_extra_flags)
+
+  if(APPLE)
+    set(png_extra_flags -DPNG_ARM_NEON=on)
+  endif()
+
   ExternalProject_Add(
     png
     DEPENDS zlib
@@ -208,6 +214,7 @@ if(BUILD_PNG)
       -DPNG_STATIC=ON
       -DPNG_TESTS=OFF
       -DPNG_DEBUG=OFF
+      ${png_extra_flags}
       -DAWK= # Needed for multi-arch build on macOS
     INSTALL_DIR ${THIRDPARTY_DIR}/png
   )
@@ -232,6 +239,7 @@ if(BUILD_ASSIMP)
       -DASSIMP_BUILD_TESTS=OFF
       -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
       -DASSIMP_NO_EXPORT=ON
+      -DASSIMP_WARNINGS_AS_ERRORS=OFF
       -DLIBRARY_SUFFIX=
       -DZLIB_LIBRARY_DBG=${ZLIB_LIBRARY}
       -DZLIB_LIBRARY_REL=${ZLIB_LIBRARY}
@@ -809,7 +817,7 @@ if(BUILD_FFMPEG AND APPLE)
     if(arch STREQUAL "arm64")
       set(configure_flags --enable-cross-compile --arch=arm64 --target-os=darwin)
     else()
-      set(configure_flags)
+      set(configure_flags --arch=x86_64 --target-os=darwin)
     endif()
 
     ExternalProject_Add(
