@@ -54,6 +54,34 @@ option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
 option(BUILD_OPENCV "Build OpenCV" OFF)
 option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
 
+function(add_lipo_target)
+  set(libs ${ARGV})
+  list(POP_FRONT libs target)
+
+  list(LENGTH CMAKE_OSX_ARCHITECTURES num_archs)
+  list(GET CMAKE_OSX_ARCHITECTURES 0 first_arch)
+
+  set(commands "")
+  foreach(lib ${libs})
+    if(num_archs EQUAL 1)
+      set(commands ${commands} COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${target}-${first_arch}-prefix/lib/${lib}" "${THIRDPARTY_DIR}/${target}/lib/${lib}")
+    else()
+      set(commands ${commands} COMMAND lipo -create -output "${THIRDPARTY_DIR}/${target}/lib/${lib}")
+      foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+        set(commands ${commands} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/${target}-${arch}-prefix/lib/${lib}")
+      endforeach()
+    endif()
+  endforeach()
+
+  add_custom_target(${target} ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/${target}/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/${target}-${first_arch}-prefix/include" "${THIRDPARTY_DIR}/${target}/include"
+    ${commands}
+  )
+  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
+    add_dependencies(${target} ${target}-${arch})
+  endforeach()
+endfunction()
 
 if(CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+ ")
   if(MSVC_TOOLSET_VERSION)
@@ -729,8 +757,6 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-arm64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
-
-      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-arm64
     )
   endif()
 
@@ -743,8 +769,6 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
-
-      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-x86_64
     )
   endif()
 
@@ -757,35 +781,10 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
-
-      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-i386
     )
   endif()
 
-  list(LENGTH CMAKE_OSX_ARCHITECTURES num_archs)
-  list(GET CMAKE_OSX_ARCHITECTURES 0 first_arch)
-
-  if(num_archs EQUAL 1)
-    set(libcrypto_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/lib/libcrypto.a" "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a")
-    set(libssl_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/lib/libssl.a" "${THIRDPARTY_DIR}/openssl/lib/libssl.a")
-  else()
-    set(libcrypto_command lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libcrypto.a")
-    set(libssl_command lipo -create -output "${THIRDPARTY_DIR}/openssl/lib/libssl.a")
-    foreach(arch ${CMAKE_OSX_ARCHITECTURES})
-      set(libcrypto_command ${libcrypto_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/openssl-${arch}/lib/libcrypto.a")
-      set(libssl_command ${libssl_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/openssl-${arch}/lib/libssl.a")
-    endforeach()
-  endif()
-
-  add_custom_target(openssl ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/openssl/lib"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/openssl-${first_arch}/include" "${THIRDPARTY_DIR}/openssl/include"
-    COMMAND ${libcrypto_command}
-    COMMAND ${libssl_command}
-  )
-  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
-    add_dependencies(openssl openssl-${arch})
-  endforeach()
+  add_lipo_target(openssl libcrypto.a libssl.a)
 endif()
 
 if(BUILD_OPENEXR)
@@ -838,38 +837,10 @@ if(BUILD_FFMPEG AND APPLE)
         "--extra-ldflags=${ffmpeg_osx_flags} -arch ${arch}"
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
-
-      INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${arch}
     )
   endforeach()
 
-  list(LENGTH CMAKE_OSX_ARCHITECTURES num_archs)
-  list(GET CMAKE_OSX_ARCHITECTURES 0 first_arch)
-
-  foreach(lib avcodec avdevice avfilter avformat avutil swresample swscale)
-    if(num_archs EQUAL 1)
-      set(lib${lib}_command ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${first_arch}/lib/lib${lib}.a" "${THIRDPARTY_DIR}/openssl/lib/lib${lib}.a")
-    else()
-      set(lib${lib}_command lipo -create -output "${THIRDPARTY_DIR}/ffmpeg/lib/lib${lib}.a")
-      foreach(arch ${CMAKE_OSX_ARCHITECTURES})
-        set(lib${lib}_command ${lib${lib}_command} -arch ${arch} "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${arch}/lib/lib${lib}.a")
-      endforeach()
-    endif()
-  endforeach()
-
-  add_custom_target(ffmpeg ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRDPARTY_DIR}/ffmpeg/lib"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-${first_arch}/include" "${THIRDPARTY_DIR}/ffmpeg/include"
-    COMMAND ${libavcodec_command}
-    COMMAND ${libavdevice_command}
-    COMMAND ${libavformat_command}
-    COMMAND ${libavutil_command}
-    COMMAND ${libswresample_command}
-    COMMAND ${libswscale_command}
-  )
-  foreach(arch ${CMAKE_OSX_ARCHITECTURES})
-    add_dependencies(ffmpeg ffmpeg-${arch})
-  endforeach()
+  add_lipo_target(ffmpeg libavcodec.a libavdevice.a libavfilter.a libavformat.a libavutil.a libswresample.a libswscale.a)
 
 elseif(BUILD_FFMPEG AND ANDROID)
   if(CMAKE_ANDROID_ARCH STREQUAL "arm")
