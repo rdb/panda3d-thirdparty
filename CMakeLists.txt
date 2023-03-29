@@ -517,8 +517,8 @@ endif()
 if(BUILD_EIGEN)
   ExternalProject_Add(
     eigen
-    URL https://gitlab.com/libeigen/eigen/-/archive/3.2.8/eigen-3.2.8.tar.gz
-    URL_HASH SHA256=64c54781cfe9eefef2792003ab04b271d4b2ec32eda6e9cdf120d7aad4ebb282
+    URL https://www.panda3d.org/download/noversion/eigen-3.2.8.tar.gz
+    URL_HASH SHA256=e71cf35e86361904072f90c142a0ea3649b47df7a03b70ee34c98b5013e45e99
 
     # No need to build anything; just copy over the Eigen directory.
     CONFIGURE_COMMAND ""
