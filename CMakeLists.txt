@@ -160,6 +160,10 @@ if(BUILD_ZLIB)
       DEPENDEES install
     )
   endif()
+else()
+  # Assume zlib is present on the system.
+  add_custom_target(zlib)
+  find_library(ZLIB_LIBRARY z)
 endif()
 
 if(BUILD_PNG)
