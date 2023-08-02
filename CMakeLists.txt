@@ -171,12 +171,7 @@ if(APPLE)
   )
 endif(APPLE)
 
-if(ANDROID)
-  # Android ships with zlib.
-  add_custom_target(zlib)
-  find_library(ZLIB_LIBRARY z)
-
-elseif(BUILD_ZLIB)
+if(BUILD_ZLIB)
   ExternalProject_Add(
     zlib
     GIT_REPOSITORY https://github.com/madler/zlib.git
@@ -216,7 +211,9 @@ elseif(BUILD_ZLIB)
     set(ZLIB_LIBRARY ${THIRDPARTY_DIR}/zlib/lib/libz.a)
   endif()
 else()
-  set(ZLIB_LIBRARY ZLIB_LIBRARY-NOTFOUND)
+  # Assume zlib is present on the system.
+  add_custom_target(zlib)
+  find_library(ZLIB_LIBRARY z)
 endif()
 
 if(BUILD_PNG)
