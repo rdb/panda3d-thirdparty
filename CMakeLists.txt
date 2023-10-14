@@ -128,8 +128,8 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_C_FLAGS "-fpic -Wno-error=deprecated-declarations")
-  set(CMAKE_CXX_FLAGS "-fpic -Wno-error=deprecated-declarations")
+  set(CMAKE_C_FLAGS "-fpic -Wno-error=deprecated-declarations -DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR")
+  set(CMAKE_CXX_FLAGS "-fpic -Wno-error=deprecated-declarations -DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR")
 endif()
 
 message("thirdparty packages will be installed to ${THIRDPARTY_DIR}")
