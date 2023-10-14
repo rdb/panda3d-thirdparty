@@ -2,7 +2,7 @@
 # supports a single installation per system, this script will uninstall
 # versions of Python already present on your system!
 
-$versions = "3.6.8","3.7.9","3.8.10","3.9.13","3.10.9","3.11.1"
+$versions = "3.8.10","3.9.13","3.10.11","3.11.6","3.12.0"
 $installerargs = "/quiet","/repair","InstallAllUsers=0","Include_doc=0","Include_pip=0","Include_test=0","Include_launcher=0","InstallLauncherAllUsers=0","Shortcuts=0","AssociateFiles=0"
 
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) $(New-Guid)
