@@ -259,6 +259,8 @@ if(BUILD_ASSIMP)
     GIT_REPOSITORY https://github.com/assimp/assimp.git
     GIT_TAG 8134cae998ec0e3a44a6ec8330b681f3981107b7 #v5.1.6
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/assimp-5.1.6-no-werror.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
       -DASSIMP_BUILD_TESTS=OFF
