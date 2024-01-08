@@ -526,12 +526,17 @@ if(BUILD_FCOLLADA)
   ExternalProject_Add(
     fcollada
     GIT_REPOSITORY https://github.com/rdb/fcollada.git
-    GIT_TAG f1f3820a5ff8b0b3eed2f0c19ca481d99358dc86
+    GIT_TAG af049cf61c79357627ae669eab1106c4056de3b8
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_UNICODE=OFF
       -DBUILD_TESTS=OFF
     INSTALL_DIR ${THIRDPARTY_DIR}/fcollada
+  )
+
+  ExternalProject_Add_Step(fcollada remove_extras
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    DEPENDEES install
   )
 endif()
 
