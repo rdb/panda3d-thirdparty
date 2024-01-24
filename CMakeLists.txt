@@ -1061,7 +1061,7 @@ if(BUILD_RECAST)
   ExternalProject_Add(
           recast
           GIT_REPOSITORY https://github.com/recastnavigation/recastnavigation.git
-          GIT_TAG c5cbd53024c8a9d8d097a4371215e3342d2fdc87
+          GIT_TAG 6dc1667f580357e8a2154c28b7867bea7e8ad3a7 # 1.6.0
 
           CMAKE_ARGS ${COMMON_CMAKE_ARGS}
             -DRECASTNAVIGATION_DEMO=OFF
