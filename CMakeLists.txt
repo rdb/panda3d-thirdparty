@@ -19,12 +19,6 @@ if(DISABLE_ALL)
   set(DEFAULT_ENABLE OFF)
 endif()
 
-if(APPLE)
-  set(NOT_APPLE OFF)
-else()
-  set(NOT_APPLE ${DEFAULT_ENABLE})
-endif()
-
 if(NOT ANDROID)
   option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
 endif()
