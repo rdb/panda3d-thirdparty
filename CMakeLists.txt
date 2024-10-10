@@ -419,8 +419,8 @@ if(BUILD_OPUS)
 
   ExternalProject_Add(
     opus
-    GIT_REPOSITORY https://github.com/xnorpx/opus.git
-    GIT_TAG e58822ef814b9bd9baeabecd7024aa7a6d4b5adf # PR#100
+    GIT_REPOSITORY https://github.com/xiph/opus.git
+    GIT_TAG ddbe48383984d56acd9e1ab6a090c54ca6b735a6 # v1.5.2
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
@@ -430,7 +430,7 @@ if(BUILD_OPUS)
     opusfile
     DEPENDS ogg-opus opus
     GIT_REPOSITORY https://github.com/xiph/opusfile.git
-    GIT_TAG b7c2ed3bafd9b08cd5d276894ca18fb58bcbfbc9 #0.11
+    GIT_TAG a55c164e9891a9326188b7d4d216ec9a88373739 # v0.12
 
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/libopusfile.cmake <SOURCE_DIR>/CMakeLists.txt
 
