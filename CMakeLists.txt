@@ -925,7 +925,7 @@ if(BUILD_SPIRV_CROSS)
   ExternalProject_Add(
     spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG 4e2fdb25671c742a9fbe93a6034eb1542244c7e1
+    GIT_TAG 208adcd2c360587e9623af20cdba351bc0908a1a
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV_CROSS_CLI=OFF
