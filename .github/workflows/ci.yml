@@ -132,7 +132,7 @@ jobs:
 
     - name: Upload
       if: github.event_name == 'push'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{matrix.dir}}
         path: ${{matrix.archive}}
