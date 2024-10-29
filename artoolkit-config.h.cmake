@@ -248,4 +248,8 @@
 #define   AR_PARAM_NMAX      1000
 #define   AR_PARAM_C34        100.0
 
+#ifndef __APPLE__
+#include <stdlib.h>
+#endif
+
 #endif
