@@ -248,8 +248,9 @@
 #define   AR_PARAM_NMAX      1000
 #define   AR_PARAM_C34        100.0
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(_WIN32)
 #include <stdlib.h>
+#include <time.h>
 #endif
 
 #endif
