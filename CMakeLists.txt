@@ -922,12 +922,19 @@ if(BUILD_GLSLANG)
 endif()
 
 if(BUILD_SPIRV_CROSS)
+  set(spirv_cross_flags)
+  if(MSVC)
+    # Don't specify NDEBUG so we don't compile out the error messages
+    set(spirv_cross_flags "-DCMAKE_CXX_FLAGS_RELEASE=/MD /O2 /Ob2")
+  endif()
+
   ExternalProject_Add(
     spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
     GIT_TAG 9040e0d25dc545a6d725276bdbd0362791c81f14
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      ${spirv_cross_flags}
       -DSPIRV_CROSS_CLI=OFF
       -DSPIRV_CROSS_ENABLE_CPP=OFF
       -DSPIRV_CROSS_ENABLE_C_API=OFF
