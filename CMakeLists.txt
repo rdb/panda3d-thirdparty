@@ -736,6 +736,7 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
     DEPENDEES install
   )
 elseif(BUILD_OPENSSL AND APPLE)
