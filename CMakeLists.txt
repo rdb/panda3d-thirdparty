@@ -845,9 +845,12 @@ if(BUILD_FFMPEG AND APPLE)
 
 elseif(BUILD_FFMPEG AND ANDROID)
   if(CMAKE_ANDROID_ARCH STREQUAL "arm")
-    set(ffmpeg_arch armv7-a)
+    set(configure_flags --arch=armv7-a)
+  elseif(CMAKE_ANDROID_ARCH STREQUAL "x86")
+    # It seems this is not position-independent
+    set(configure_flags --arch=x86 --disable-x86asm --disable-inline-asm)
   else()
-    set(ffmpeg_arch ${CMAKE_ANDROID_ARCH})
+    set(configure_flags --arch=${CMAKE_ANDROID_ARCH})
   endif()
 
   ExternalProject_Add(
@@ -856,7 +859,7 @@ elseif(BUILD_FFMPEG AND ANDROID)
     URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
     URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
 
-    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect --enable-cross-compile --arch=${ffmpeg_arch} --target-os=android
+    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect --enable-cross-compile ${configure_flags} --target-os=android
         "--cc=${CMAKE_C_COMPILER}"
         "--cxx=${CMAKE_CXX_COMPILER}"
         "--ar=${CMAKE_AR}"
