@@ -823,8 +823,8 @@ if(BUILD_FFMPEG AND APPLE)
     ExternalProject_Add(
       ffmpeg-${arch}
       DEPENDS ogg vorbis freetype zlib
-      URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
-      URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
+      URL https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
+      URL_HASH SHA256=77e0eedd8ebeafde5807011e700fdea82b306b9f76fe469b4abc5dfefd9579bd
 
       CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect ${configure_flags}
         "--cc=${CMAKE_C_COMPILER}"
@@ -856,8 +856,8 @@ elseif(BUILD_FFMPEG AND ANDROID)
   ExternalProject_Add(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
-    URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
-    URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
+    URL https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
+    URL_HASH SHA256=77e0eedd8ebeafde5807011e700fdea82b306b9f76fe469b4abc5dfefd9579bd
 
     CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect --enable-cross-compile ${configure_flags} --target-os=android
         "--cc=${CMAKE_C_COMPILER}"
@@ -883,8 +883,8 @@ elseif(BUILD_FFMPEG AND NOT WIN32)
   ExternalProject_Add(
     ffmpeg
     DEPENDS ogg vorbis freetype zlib
-    URL https://ffmpeg.org/releases/ffmpeg-4.4.1.tar.gz
-    URL_HASH SHA256=82c98f74777f623710b72f9a3389fd38c1ed93bc661107e65df19234e395f6b9
+    URL https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
+    URL_HASH SHA256=77e0eedd8ebeafde5807011e700fdea82b306b9f76fe469b4abc5dfefd9579bd
 
     CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --datadir=${CMAKE_BINARY_DIR}/etc --disable-shared --enable-static --enable-pic --disable-doc --disable-debug --disable-programs --disable-outdevs --enable-runtime-cpudetect
         "--cc=${CMAKE_C_COMPILER}"
