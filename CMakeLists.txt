@@ -525,8 +525,8 @@ endif()
 if(BUILD_EIGEN)
   ExternalProject_Add(
     eigen
-    URL https://www.panda3d.org/download/noversion/eigen-3.2.10.tar.gz
-    URL_HASH SHA256=0920cb60ec38de5fb509650014eff7cc6d26a097c7b38c7db4b1aa5df5c85042
+    URL https://www.panda3d.org/download/noversion/eigen-3.3.9.tar.gz
+    URL_HASH SHA256=7985975b787340124786f092b3a07d594b2e9cd53bbfe5f3d9b1daee7d55f56f
 
     # No need to build anything; just copy over the Eigen directory.
     CONFIGURE_COMMAND ""
