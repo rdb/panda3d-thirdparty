@@ -3,6 +3,10 @@
 
 cmake_minimum_required(VERSION 3.13...3.14)
 
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+  cmake_policy(SET CMP0135 OLD)
+endif()
+
 # Set defaults.  Must be before project().
 if(APPLE)
   set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
