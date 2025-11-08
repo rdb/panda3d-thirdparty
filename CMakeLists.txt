@@ -750,15 +750,8 @@ elseif(BUILD_OPENSSL AND NOT APPLE)
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
+    INSTALL_COMMAND make install_dev
     INSTALL_DIR ${THIRDPARTY_DIR}/openssl
-  )
-
-  ExternalProject_Add_Step(openssl remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/bin"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/ssl"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/share"
-    DEPENDEES install
   )
 elseif(BUILD_OPENSSL AND APPLE)
   set(ssl_flags ${CMAKE_C_FLAGS}
@@ -779,6 +772,8 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-arm64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
+
+      INSTALL_COMMAND make install_dev
     )
   endif()
 
@@ -791,6 +786,8 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin64-x86_64-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
+
+      INSTALL_COMMAND make install_dev
     )
   endif()
 
@@ -803,6 +800,8 @@ elseif(BUILD_OPENSSL AND APPLE)
       CONFIGURE_COMMAND /usr/bin/perl ./Configure darwin-i386-cc --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR> ${ssl_flags}
       BUILD_COMMAND ${MAKE}
       BUILD_IN_SOURCE 1
+
+      INSTALL_COMMAND make install_dev
     )
   endif()
 
