@@ -1,0 +1,169 @@
+diff --git a/common/almalloc.h b/common/almalloc.h
+index bd30fe156..405b510a0 100644
+--- a/common/almalloc.h
++++ b/common/almalloc.h
+@@ -24,6 +24,31 @@ template<typename T> using owner = T;
+ 
+ enum FamCount : size_t { };
+ 
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++#define DEF_FAM_NEWDEL(T, FamMem)                                             \
++    static constexpr size_t Sizeof(size_t count) noexcept                     \
++    {                                                                         \
++        static_assert(&Sizeof == &T::Sizeof,                                  \
++            "Incorrect container type specified");                            \
++        return std::max(decltype(FamMem)::Sizeof(count, offsetof(T, FamMem)), \
++            sizeof(T));                                                       \
++    }                                                                         \
++                                                                              \
++    gsl::owner<void*> operator new(size_t /*size*/, FamCount count)           \
++    {                                                                         \
++        gsl::owner<void*> p{};                                                \
++        if (::posix_memalign(&p, alignof(T), T::Sizeof(count)) == 0) {        \
++            return static_cast<gsl::owner<T*>>(p);                            \
++        }                                                                     \
++        throw std::bad_alloc();                                               \
++    }                                                                         \
++    void operator delete(gsl::owner<void*> block, FamCount) noexcept          \
++    { ::free(block); }                                                        \
++    void operator delete(gsl::owner<void*> block) noexcept                    \
++    { ::free(block); }                                                        \
++    void *operator new[](size_t /*size*/) = delete;                           \
++    void operator delete[](void* /*block*/) = delete;
++#else
+ #define DEF_FAM_NEWDEL(T, FamMem)                                             \
+     static constexpr size_t Sizeof(size_t count) noexcept                     \
+     {                                                                         \
+@@ -44,7 +69,7 @@ enum FamCount : size_t { };
+     { ::operator delete[](block, std::align_val_t{alignof(T)}); }             \
+     void *operator new[](size_t /*size*/) = delete;                           \
+     void operator delete[](void* /*block*/) = delete;
+-
++#endif
+ 
+ namespace al {
+ 
+@@ -75,10 +100,22 @@ struct allocator {
+     gsl::owner<T*> allocate(std::size_t n)
+     {
+         if(n > std::numeric_limits<std::size_t>::max()/sizeof(T)) throw std::bad_alloc();
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++        gsl::owner<void*> p{};
++        if (::posix_memalign(&p, static_cast<std::size_t>(AlignVal), n*sizeof(T)) == 0) {
++            return static_cast<gsl::owner<T*>>(p);
++        }
++        return nullptr;
++#else
+         return static_cast<gsl::owner<T*>>(::operator new[](n*sizeof(T), AlignVal));
++#endif
+     }
+     void deallocate(gsl::owner<T*> p, std::size_t) noexcept
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++    { ::free(gsl::owner<void*>{p}); }
++#else
+     { ::operator delete[](gsl::owner<void*>{p}, AlignVal); }
++#endif
+ };
+ template<typename T, std::size_t N, typename U, std::size_t M>
+ constexpr bool operator==(const allocator<T,N>&, const allocator<U,M>&) noexcept
+diff --git a/common/flexarray.h b/common/flexarray.h
+index b6f09c20d..3acd69aca 100644
+--- a/common/flexarray.h
++++ b/common/flexarray.h
+@@ -123,12 +123,27 @@ struct FlexArray {
+     [[nodiscard]] auto rend() const noexcept -> const_reverse_iterator { return mStore.crend(); }
+     [[nodiscard]] auto crend() const noexcept -> const_reverse_iterator { return mStore.crend(); }
+ 
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++    gsl::owner<void*> operator new(size_t, FamCount count)
++    {
++        gsl::owner<void*> p{};
++        if (::posix_memalign(&p, alignof(FlexArray), Sizeof(count)) == 0) {
++            return p;
++        }
++        throw std::bad_alloc();
++    }
++    void operator delete(gsl::owner<void*> block, FamCount) noexcept
++    { ::free(block); }
++    void operator delete(gsl::owner<void*> block) noexcept
++    { ::free(block); }
++#else
+     gsl::owner<void*> operator new(size_t, FamCount count)
+     { return ::operator new[](Sizeof(count), std::align_val_t{alignof(FlexArray)}); }
+     void operator delete(gsl::owner<void*> block, FamCount) noexcept
+     { ::operator delete[](block, std::align_val_t{alignof(FlexArray)}); }
+     void operator delete(gsl::owner<void*> block) noexcept
+     { ::operator delete[](block, std::align_val_t{alignof(FlexArray)}); }
++#endif
+ 
+     void *operator new(size_t size) = delete;
+     void *operator new[](size_t size) = delete;
+diff --git a/common/pffft.cpp b/common/pffft.cpp
+index 07b6fbccf..14f3a223a 100644
+--- a/common/pffft.cpp
++++ b/common/pffft.cpp
+@@ -1489,7 +1489,15 @@ PFFFTSetupPtr pffft_new_setup(unsigned int N, pffft_transform_t transform)
+ 
+     const size_t storelen{std::max(offsetof(PFFFT_Setup, end) + 2_zu*Ncvec*sizeof(v4sf),
+         sizeof(PFFFT_Setup))};
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++    void *ptr;
++    if (::posix_memalign(&ptr, static_cast<std::size_t>(V4sfAlignVal), storelen) != 0) {
++        throw std::bad_alloc();
++    }
++    auto storage = static_cast<gsl::owner<std::byte*>>(ptr);
++#else
+     auto storage = static_cast<gsl::owner<std::byte*>>(::operator new[](storelen, V4sfAlignVal));
++#endif
+     al::span extrastore{&storage[offsetof(PFFFT_Setup, end)], 2_zu*Ncvec*sizeof(v4sf)};
+ 
+     PFFFTSetupPtr s{::new(storage) PFFFT_Setup{}};
+@@ -1537,7 +1545,11 @@ PFFFTSetupPtr pffft_new_setup(unsigned int N, pffft_transform_t transform)
+ void PFFFTSetupDeleter::operator()(gsl::owner<PFFFT_Setup*> setup) const noexcept
+ {
+     std::destroy_at(setup);
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++    ::free(setup);
++#else
+     ::operator delete[](gsl::owner<void*>{setup}, V4sfAlignVal);
++#endif
+ }
+ 
+ #if !defined(PFFFT_SIMD_DISABLE)
+diff --git a/core/hrtf.cpp b/core/hrtf.cpp
+index ccd0a11a6..4cfecef7d 100644
+--- a/core/hrtf.cpp
++++ b/core/hrtf.cpp
+@@ -423,8 +423,12 @@ std::unique_ptr<HrtfStore> CreateHrtfStore(uint rate, uint8_t irSize,
+     total += sizeof(std::declval<HrtfStore&>().mCoeffs[0])*irCount;
+     total += sizeof(std::declval<HrtfStore&>().mDelays[0])*irCount;
+ 
++#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101300
++    std::unique_ptr<HrtfStore> Hrtf{::new HrtfStore{}};
++#else
+     static constexpr auto AlignVal = std::align_val_t{alignof(HrtfStore)};
+     std::unique_ptr<HrtfStore> Hrtf{::new(::operator new[](total, AlignVal)) HrtfStore{}};
++#endif
+     Hrtf->mRef.store(1u, std::memory_order_relaxed);
+     Hrtf->mSampleRate = rate & 0xff'ff'ff;
+     Hrtf->mIrSize = irSize;
+diff --git a/core/hrtf.h b/core/hrtf.h
+index 020e3077a..6b657f9fe 100644
+--- a/core/hrtf.h
++++ b/core/hrtf.h
+@@ -47,6 +47,7 @@ struct alignas(16) HrtfStore {
+     void add_ref();
+     void dec_ref();
+ 
++#if !defined(__APPLE__) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101300
+     void *operator new(size_t) = delete;
+     void *operator new[](size_t) = delete;
+     void operator delete[](void*) noexcept = delete;
+@@ -55,6 +56,7 @@ struct alignas(16) HrtfStore {
+     { ::operator delete[](block, std::align_val_t{alignof(HrtfStore)}); }
+     void operator delete(gsl::owner<void*> block) noexcept
+     { ::operator delete[](block, std::align_val_t{alignof(HrtfStore)}); }
++#endif
+ };
+ using HrtfStorePtr = al::intrusive_ptr<HrtfStore>;
+ 
