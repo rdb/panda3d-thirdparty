@@ -1064,7 +1064,8 @@ if(BUILD_MIMALLOC)
   ExternalProject_Add(
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
-    GIT_TAG f412df7a2b64421e1f1d61fde6055a6ea288e8f5 # v2.0.3
+    GIT_TAG 6141843614220c4d85f55774c131a68ba778e413 # v2.1.6
+    # This is the latest version to support CMake 3.13, above requires 3.18
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DMI_BUILD_SHARED=OFF
