@@ -468,7 +468,9 @@ if(BUILD_OPENAL)
   ExternalProject_Add(
     openal
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG dc7d7054a5b4f3bec1dc23a42fd616a0847af948 # 1.24.3
+    GIT_TAG d3875f333fb6abe2f39d82caca329414871ae53b # 1.23.1
+    # We are stuck on 1.23.1 for now as 1.24.0 requires macOS 10.13 or higher
+    # (due to the use of aligned operator new)
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DLIBTYPE=STATIC
