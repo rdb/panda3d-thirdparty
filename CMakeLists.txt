@@ -22,7 +22,9 @@ endif()
 if(NOT ANDROID)
   option(BUILD_ZLIB "Build zlib" ${DEFAULT_ENABLE})
 endif()
-option(BUILD_PNG "Build libpng (requires zlib)" ${DEFAULT_ENABLE})
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
+  option(BUILD_PNG "Build libpng (requires zlib)" ${DEFAULT_ENABLE})
+endif()
 option(BUILD_ASSIMP "Build assimp (requires zlib)" ${DEFAULT_ENABLE})
 option(BUILD_BULLET "Build bullet" ${DEFAULT_ENABLE})
 option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ${DEFAULT_ENABLE})
@@ -227,17 +229,16 @@ if(BUILD_PNG)
     png
     DEPENDS zlib
 
-    # Please note that libpng 1.6.32+ requires CMake 3.0.2
+    # Please note that libpng 1.6.50 requires CMake 3.14
     GIT_REPOSITORY https://github.com/glennrp/libpng.git
-    GIT_TAG 9fcb846402d8692d25cb5286777a832ca852fa44 #v1.6.31
-    #URL https://github.com/glennrp/libpng/archive/v1.6.31.tar.gz
-    #URL_HASH SHA256=79c0391804c83a6e0b722c20be7c3a27aeb2fe09afbc3028abad243444c98aa0
+    GIT_TAG 2b978915d82377df13fcbb1fb56660195ded868a #v1.6.50
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
       -DPNG_SHARED=OFF
       -DPNG_STATIC=ON
       -DPNG_TESTS=OFF
+      -DPNG_TOOLS=OFF
       -DPNG_DEBUG=OFF
       ${png_extra_flags}
       -DAWK= # Needed for multi-arch build on macOS
