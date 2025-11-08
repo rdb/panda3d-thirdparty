@@ -1,7 +1,7 @@
 # Many of this is based on the scripts in the Polycode project.  Many thanks
 # to the respective authors for going through the work of figuring this out!
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.3...3.5)
 
 # Set defaults.  Must be before project().
 if(APPLE)
