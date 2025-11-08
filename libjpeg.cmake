@@ -6,7 +6,7 @@
 # Please note that the package source code is licensed under its own license.
 
 project ( libjpeg C )
-cmake_minimum_required ( VERSION 2.8 )
+cmake_minimum_required ( VERSION 2.8...3.5 )
 
 option(BUILD_SHARED_LIBS "Build shared instead of static library." OFF)
 
