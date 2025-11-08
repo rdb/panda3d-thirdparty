@@ -553,7 +553,7 @@ if(BUILD_FCOLLADA)
   ExternalProject_Add(
     fcollada
     GIT_REPOSITORY https://github.com/rdb/fcollada.git
-    GIT_TAG c638932ea6041113fa9a245ca49f376ad5d814df
+    GIT_TAG 343096d926113ad94aebf1a58d3327bcc5ca631c
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_UNICODE=OFF
