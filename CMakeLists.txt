@@ -1,7 +1,7 @@
 # Many of this is based on the scripts in the Polycode project.  Many thanks
 # to the respective authors for going through the work of figuring this out!
 
-cmake_minimum_required(VERSION 3.3...3.5)
+cmake_minimum_required(VERSION 3.12)
 
 # Set defaults.  Must be before project().
 if(APPLE)
@@ -799,7 +799,7 @@ if(BUILD_OPENEXR)
     openexr
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/openexr.git
-    GIT_TAG e94d82b2165da4e2af167aa74630906202e3d43b #v3.1.4
+    GIT_TAG fad1d1a9dc188aceabbea1313580d73b7236b79b #v3.1.13
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib
