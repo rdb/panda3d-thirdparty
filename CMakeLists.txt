@@ -140,17 +140,23 @@ set(COMMON_CMAKE_ARGS
   -DCMAKE_LINKER=${CMAKE_LINKER}
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
   -DCMAKE_INSTALL_LIBDIR=lib
-  -DCMAKE_ANDROID_ARCH=${CMAKE_ANDROID_ARCH}
-  -DCMAKE_ANDROID_ARCH_ABI=${CMAKE_ANDROID_ARCH_ABI}
-  #-DCMAKE_ANDROID_ARCH_TRIPLE=${CMAKE_ANDROID_ARCH_TRIPLE}
-  #-DCMAKE_ANDROID_ARCH_LLVM_TRIPLE=${CMAKE_ANDROID_ARCH_LLVM_TRIPLE}
-  -DANDROID_ABI=${CMAKE_ANDROID_ARCH_ABI}
-  -DANDROID_PLATFORM=${ANDROID_PLATFORM}
   -DBUILD_SHARED_LIBS=OFF
   -DSKIP_INSTALL_EXECUTABLES=ON
   -DSKIP_INSTALL_FILES=ON
   -Wno-dev
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+  set(COMMON_CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+    -DCMAKE_ANDROID_ARCH=${CMAKE_ANDROID_ARCH}
+    -DCMAKE_ANDROID_ARCH_ABI=${CMAKE_ANDROID_ARCH_ABI}
+    #-DCMAKE_ANDROID_ARCH_TRIPLE=${CMAKE_ANDROID_ARCH_TRIPLE}
+    #-DCMAKE_ANDROID_ARCH_LLVM_TRIPLE=${CMAKE_ANDROID_ARCH_LLVM_TRIPLE}
+    -DANDROID_ABI=${CMAKE_ANDROID_ARCH_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON
+  )
+endif()
 
 if(WIN32)
   # Add tools like patch.exe and nasm.exe to the PATH
@@ -846,11 +852,14 @@ if(BUILD_FFMPEG AND APPLE)
 elseif(BUILD_FFMPEG AND ANDROID)
   if(CMAKE_ANDROID_ARCH STREQUAL "arm")
     set(configure_flags --arch=armv7-a)
+    set(extra_ldflags)
   elseif(CMAKE_ANDROID_ARCH STREQUAL "x86")
     # It seems this is not position-independent
     set(configure_flags --arch=x86 --disable-x86asm --disable-inline-asm)
+    set(extra_ldflags)
   else()
     set(configure_flags --arch=${CMAKE_ANDROID_ARCH})
+    set(extra_ldflags -Wl,-z,max-page-size=16384)
   endif()
 
   ExternalProject_Add(
@@ -868,7 +877,7 @@ elseif(BUILD_FFMPEG AND ANDROID)
         "--strip=${CMAKE_STRIP}"
         "--extra-cflags=${CMAKE_C_FLAGS} -target ${CMAKE_C_COMPILER_TARGET}  -Wno-attributes"
         "--extra-cxxflags=${CMAKE_CXX_FLAGS} -target ${CMAKE_CXX_COMPILER_TARGET} -Wno-attributes"
-        "--extra-ldflags=-target ${CMAKE_C_COMPILER_TARGET}"
+        "--extra-ldflags=-target ${CMAKE_C_COMPILER_TARGET} ${extra_ldflags}"
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1
 
