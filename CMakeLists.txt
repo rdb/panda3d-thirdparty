@@ -51,7 +51,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
 endif()
 option(BUILD_OPENCV "Build OpenCV" OFF)
 option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
-option(BUILD_RECAST "Build Recast Navigation" ${DEFAULT_ENABLE})
+option(BUILD_RECAST "Build Recast Navigation" OFF)
 
 function(add_lipo_target)
   set(libs ${ARGV})
@@ -1080,14 +1080,14 @@ endif()
 
 if(BUILD_RECAST)
   ExternalProject_Add(
-          recast
-          GIT_REPOSITORY https://github.com/recastnavigation/recastnavigation.git
-          GIT_TAG 6dc1667f580357e8a2154c28b7867bea7e8ad3a7 # 1.6.0
+    recast
+    GIT_REPOSITORY https://github.com/recastnavigation/recastnavigation.git
+    GIT_TAG 6dc1667f580357e8a2154c28b7867bea7e8ad3a7 # 1.6.0
 
-          CMAKE_ARGS ${COMMON_CMAKE_ARGS}
-            -DRECASTNAVIGATION_DEMO=OFF
-            -DRECASTNAVIGATION_TESTS=OFF
-            -DRECASTNAVIGATION_EXAMPLES=OFF
-          INSTALL_DIR ${THIRDPARTY_DIR}/recast
+    CMAKE_ARGS ${COMMON_CMAKE_ARGS}
+      -DRECASTNAVIGATION_DEMO=OFF
+      -DRECASTNAVIGATION_TESTS=OFF
+      -DRECASTNAVIGATION_EXAMPLES=OFF
+    INSTALL_DIR ${THIRDPARTY_DIR}/recast
   )
 endif()
