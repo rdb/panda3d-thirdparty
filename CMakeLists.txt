@@ -1,7 +1,7 @@
 # Many of this is based on the scripts in the Polycode project.  Many thanks
 # to the respective authors for going through the work of figuring this out!
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13...3.14)
 
 # Set defaults.  Must be before project().
 if(APPLE)
@@ -31,7 +31,7 @@ option(BUILD_HARFBUZZ "Build harfbuzz (requires freetype)" ${DEFAULT_ENABLE})
 option(BUILD_FREETYPE "Build freetype (requires harfbuzz, zlib and png)" ${DEFAULT_ENABLE})
 option(BUILD_VORBIS "Build vorbis" ${DEFAULT_ENABLE})
 option(BUILD_OPUS "Build opus" ${DEFAULT_ENABLE})
-option(BUILD_OPENAL "Build OpenAL" ${DEFAULT_ENABLE})
+option(BUILD_OPENAL "Build OpenAL Soft" ${DEFAULT_ENABLE})
 option(BUILD_JPEG "Build libjpeg" ${DEFAULT_ENABLE})
 option(BUILD_SQUISH "Build libsquish" ${DEFAULT_ENABLE})
 option(BUILD_FCOLLADA "Build FCollada" ${DEFAULT_ENABLE})
@@ -305,7 +305,7 @@ if(BUILD_BULLET)
       -DBUILD_EXTRAS=OFF
       -DBUILD_UNIT_TESTS=OFF
       -DINCLUDE_INSTALL_DIR:STRING=include/
-      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/bullet
   )
 
@@ -330,6 +330,7 @@ if(BUILD_HARFBUZZ)
       -DWITH_HarfBuzz=OFF
       -DWITH_BZip2=OFF
       -DWITH_PNG=OFF
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb
   )
 
@@ -352,6 +353,7 @@ if(BUILD_HARFBUZZ)
       -DFREETYPE_LIBRARY=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX}
       -DFREETYPE_INCLUDE_DIR_freetype2=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
       -DFREETYPE_INCLUDE_DIR_ft2build=${CMAKE_CURRENT_BINARY_DIR}/freetype-nohb/include/freetype2
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/harfbuzz
   )
 
@@ -383,6 +385,7 @@ if(BUILD_FREETYPE)
       -DHARFBUZZ_ICU_LIBRARIES=${THIRDPARTY_DIR}/harfbuzz/lib/${CMAKE_STATIC_LIBRARY_PREFIX}harfbuzz${CMAKE_STATIC_LIBRARY_SUFFIX}
       -DPC_HARFBUZZ_INCLUDEDIR=${THIRDPARTY_DIR}/harfbuzz/include
       -DPC_HARFBUZZ_LIBDIR=${THIRDPARTY_DIR}/harfbuzz/lib
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/freetype
   )
 endif()
@@ -391,7 +394,7 @@ if(BUILD_VORBIS)
   ExternalProject_Add(
     ogg
     GIT_REPOSITORY https://github.com/xiph/ogg.git
-    GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
+    GIT_TAG 0288fadac3ac62d453409dfc83e9c4ab617d2472
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
@@ -401,12 +404,13 @@ if(BUILD_VORBIS)
     vorbis
     DEPENDS ogg
     GIT_REPOSITORY https://github.com/xiph/vorbis.git
-    GIT_TAG 8ef0f8058854b2ef55d2d42bbe84487a9aadae12
+    GIT_TAG 851cce991da34adf5e1f3132588683758a6369ec
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DOGG_ROOT=${THIRDPARTY_DIR}/vorbis
       -DOGG_INCLUDE_DIRS=${THIRDPARTY_DIR}/vorbis/include
       -DOGG_LIBRARIES=${THIRDPARTY_DIR}/vorbis/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ogg${CMAKE_STATIC_LIBRARY_SUFFIX}
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/vorbis
   )
 
@@ -420,7 +424,7 @@ if(BUILD_OPUS)
   ExternalProject_Add(
     ogg-opus
     GIT_REPOSITORY https://github.com/xiph/ogg.git
-    GIT_TAG dd85929dbe38be4b3876c9c0d6d5dcb7a128f388
+    GIT_TAG 0288fadac3ac62d453409dfc83e9c4ab617d2472
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
@@ -450,6 +454,7 @@ if(BUILD_OPUS)
       -DOPUS_ROOT=${THIRDPARTY_DIR}/opus
       -DOPUS_INCLUDE_DIRS=${THIRDPARTY_DIR}/opus/include/opus
       -DOPUS_LIBRARIES=${THIRDPARTY_DIR}/opus/lib/${CMAKE_STATIC_LIBRARY_PREFIX}opus${CMAKE_STATIC_LIBRARY_SUFFIX}
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/opus
   )
 
@@ -530,7 +535,7 @@ if(BUILD_FCOLLADA)
   ExternalProject_Add(
     fcollada
     GIT_REPOSITORY https://github.com/rdb/fcollada.git
-    GIT_TAG af049cf61c79357627ae669eab1106c4056de3b8
+    GIT_TAG 7bedc0f77a0a0b049b01b7293e7d91c81b8bb433
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_UNICODE=OFF
@@ -562,6 +567,7 @@ if(BUILD_VRPN)
       -DVRPN_BUILD_SERVERS=OFF
       -DVRPN_BUILD_SERVER_LIBRARY=OFF
       -DBUILD_TESTING=FALSE
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/vrpn
   )
 endif()
@@ -578,6 +584,7 @@ if(BUILD_TIFF)
       -DJPEG_INCLUDE_DIR=${THIRDPARTY_DIR}/jpeg/include
       -DJPEG_LIBRARY=${JPEG_LIBRARY}
       -Dzlib=ON -Djpeg=ON -Dlzma=OFF -Dcxx=OFF
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/tiff
   )
 
@@ -1049,6 +1056,7 @@ if(BUILD_OPENCV)
       -DBUILD_opencv_ts=OFF
       -DBUILD_opencv_video=OFF
       -DBUILD_opencv_videostab=OFF
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     INSTALL_DIR ${THIRDPARTY_DIR}/opencv
   )
 

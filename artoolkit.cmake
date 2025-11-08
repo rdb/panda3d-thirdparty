@@ -1,6 +1,6 @@
 # Made by rdb, released in the public domain.
 
-cmake_minimum_required(VERSION 2.8...3.5)
+cmake_minimum_required(VERSION 2.8...3.10)
 project(artoolkit)
 
 option(BUILD_SHARED_LIBS "Enable to build libAR as a shared library." OFF)

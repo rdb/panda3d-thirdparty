@@ -1,6 +1,6 @@
 # adapted from https://github.com/eppixx/opusfile-cmake
 
-cmake_minimum_required(VERSION 2.8...3.5)
+cmake_minimum_required(VERSION 2.8...3.10)
 project(opusfile)
 
 find_path(OGG_INCLUDE_DIRS NAMES ogg/ogg.h HINTS ${OGG_ROOT}/include PATH_SUFFIXES ogg)

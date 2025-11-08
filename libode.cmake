@@ -1,7 +1,7 @@
 # Made by rdb, based on the premake4.lua that's in the build directory of the
 # ode source tree.  Released in the public domain.  Use as you will.
 
-cmake_minimum_required(VERSION 2.8...3.5)
+cmake_minimum_required(VERSION 2.8...3.10)
 project(ode)
 
 ######################################################################
