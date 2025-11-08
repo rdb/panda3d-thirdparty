@@ -46,7 +46,9 @@ option(BUILD_OPENEXR "Build OpenEXR" ${DEFAULT_ENABLE})
 option(BUILD_FFMPEG "Build FFMpeg (requires vorbis, freetype and zlib)" ${DEFAULT_ENABLE})
 option(BUILD_GLSLANG "Build glslang" ${DEFAULT_ENABLE})
 option(BUILD_SPIRV_CROSS "Build spirv-cross" ${DEFAULT_ENABLE})
-option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
+  option(BUILD_SPIRV_TOOLS "Build spirv-tools" ${DEFAULT_ENABLE})
+endif()
 option(BUILD_OPENCV "Build OpenCV" OFF)
 option(BUILD_MIMALLOC "Build mimalloc" ${DEFAULT_ENABLE})
 option(BUILD_RECAST "Build Recast Navigation" ${DEFAULT_ENABLE})
@@ -975,7 +977,9 @@ if(BUILD_SPIRV_TOOLS)
   ExternalProject_Add(
     spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG 75b30a659c8a4979104986652c54cc421fc51129
+    GIT_TAG 09913f088a1197aba4aefd300a876b2ebbaa3391
+    # The above version matches the value in DEPS of spirv-tools, below
+    # Note that it requires CMake 3.14
 
     BUILD_COMMAND cmake -E echo "Skipping build step."
     INSTALL_COMMAND cmake -E echo "Skipping install step."
@@ -986,7 +990,8 @@ if(BUILD_SPIRV_TOOLS)
     spirv-tools
     DEPENDS spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG c79edd260c2b503f0eca57310057b4a100999cc5
+    GIT_TAG f289d047f49fb60488301ec62bafab85573668cc # vulkan-sdk-1.4.309
+    # Note, this requires CMake 3.17, newer versions require CMake 3.22
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
