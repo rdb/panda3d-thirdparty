@@ -11,14 +11,14 @@ jobs:
       matrix:
         include:
         - dir: win-libs-vc14-x64
-          generator: Visual Studio 16 2019
+          generator: Visual Studio 17 2022
           config: Release
           os: windows-2022
           args: -A x64
           archive: thirdparty-win64.zip
 
         - dir: win-libs-vc14
-          generator: Visual Studio 16 2019
+          generator: Visual Studio 17 2022
           config: Release
           os: windows-2022
           args: -A Win32
