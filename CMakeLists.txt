@@ -228,7 +228,7 @@ if(BUILD_PNG)
   set(png_extra_flags)
 
   if(APPLE)
-    set(png_extra_flags -DPNG_ARM_NEON=on)
+    set(png_extra_flags -DPNG_ARM_NEON=on -DPNG_INTEL_SSE=on)
   endif()
 
   ExternalProject_Add(
@@ -238,6 +238,8 @@ if(BUILD_PNG)
     # Please note that libpng 1.6.50 requires CMake 3.14
     GIT_REPOSITORY https://github.com/glennrp/libpng.git
     GIT_TAG 2b978915d82377df13fcbb1fb56660195ded868a #v1.6.50
+
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/png-1.6.50-arm-neon.patch
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DCMAKE_PREFIX_PATH=${THIRDPARTY_DIR}/zlib

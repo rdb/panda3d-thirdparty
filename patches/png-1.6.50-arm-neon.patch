@@ -1,0 +1,45 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d91e3a6c3..383376903 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -160,8 +160,8 @@ endif()
+ if(PNG_HARDWARE_OPTIMIZATIONS)
+ 
+   # Set definitions and sources for ARM.
+-  if(PNG_TARGET_ARCHITECTURE MATCHES "^(arm|aarch)")
+-    if(PNG_TARGET_ARCHITECTURE MATCHES "^(arm64|aarch64)")
++  if(PNG_TARGET_ARCHITECTURE MATCHES "(arm|aarch)")
++    if(PNG_TARGET_ARCHITECTURE MATCHES "(arm64|aarch64)")
+       set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
+       set(PNG_ARM_NEON
+           "on"
+@@ -216,7 +216,7 @@ if(PNG_HARDWARE_OPTIMIZATIONS)
+   endif()
+ 
+   # Set definitions and sources for Intel.
+-  if(PNG_TARGET_ARCHITECTURE MATCHES "^(i[3-6]86|x86|amd64)")
++  if(PNG_TARGET_ARCHITECTURE MATCHES "^(i[3-6]86|x86|amd64)" OR PNG_TARGET_ARCHITECTURE MATCHES "i386")
+     set(PNG_INTEL_SSE_POSSIBLE_VALUES on off)
+     set(PNG_INTEL_SSE
+         "on"
+diff --git a/pngpriv.h b/pngpriv.h
+index e3054b90a..30522d32c 100644
+--- a/pngpriv.h
++++ b/pngpriv.h
+@@ -157,7 +157,7 @@
+ #  define PNG_RISCV_RVV_OPT 0
+ #endif
+ 
+-#if PNG_ARM_NEON_OPT > 0
++#if PNG_ARM_NEON_OPT > 0 && (defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64) || defined(__arm__) || defined(__thumb__) || defined(_M_ARM))
+    /* NEON optimizations are to be at least considered by libpng, so enable the
+     * callbacks to do this.
+     */
+@@ -167,6 +167,7 @@
+ #     define PNG_ARM_NEON_IMPLEMENTATION 1
+ #  endif
+ #else /* PNG_ARM_NEON_OPT == 0 */
++#     undef PNG_ARM_NEON_OPT
+ #     define PNG_ARM_NEON_IMPLEMENTATION 0
+ #endif /* PNG_ARM_NEON_OPT > 0 */
+ 
