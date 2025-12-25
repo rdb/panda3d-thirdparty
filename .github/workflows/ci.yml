@@ -31,6 +31,7 @@ jobs:
           args: >-
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
             -DBUILD_NVIDIACG=OFF
+            -DBUILD_FFMPEG=OFF
           archive: thirdparty-mac.tar.xz
 
         - dir: android-libs-arm64
