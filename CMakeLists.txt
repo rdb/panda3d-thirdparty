@@ -948,7 +948,8 @@ if(BUILD_GLSLANG)
   ExternalProject_Add(
     glslang
     GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG 6d41bb9c557c5a0eec61ffba1f775dc5f717a8f7
+    GIT_TAG b3a6aa7b03c51ba976e4f4e96b1e31f77f43f312 # vulkan-sdk-1.4.304.1
+    # Note, this requires CMake 3.17, newer versions require CMake 3.22
 
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_EXTERNAL=OFF
