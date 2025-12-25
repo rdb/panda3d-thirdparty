@@ -2,7 +2,7 @@
 # supports a single installation per system, this script will uninstall
 # versions of Python already present on your system!
 
-$versions = "3.8.10","3.9.13","3.10.11","3.11.9","3.12.10","3.13.9","3.14.0"
+$versions = "3.8.10","3.9.13","3.10.11","3.11.9","3.12.10","3.13.11","3.14.2"
 $installerargs = "/quiet","/repair","InstallAllUsers=0","Include_doc=0","Include_pip=0","Include_test=0","Include_launcher=0","Include_freethreaded=1","InstallLauncherAllUsers=0","Shortcuts=0","AssociateFiles=0"
 $packages = "pytest","pip","setuptools"
 
