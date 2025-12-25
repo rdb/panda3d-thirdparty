@@ -951,6 +951,8 @@ if(BUILD_GLSLANG)
     GIT_TAG b3a6aa7b03c51ba976e4f4e96b1e31f77f43f312 # vulkan-sdk-1.4.304.1
     # Note, this requires CMake 3.17, newer versions require CMake 3.22
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/glslang-no-std-filesystem.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DBUILD_EXTERNAL=OFF
       -DBUILD_SHARED_LIBS=OFF
