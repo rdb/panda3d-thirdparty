@@ -1026,6 +1026,8 @@ if(BUILD_SPIRV_TOOLS)
     GIT_TAG f289d047f49fb60488301ec62bafab85573668cc # vulkan-sdk-1.4.309
     # Note, this requires CMake 3.17, newer versions require CMake 3.22
 
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_LIST_DIR}/patches/spirv-tools-config-package-dir.patch
+
     CMAKE_ARGS ${COMMON_CMAKE_ARGS}
       -DSPIRV-Headers_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers
       -DSPIRV_BUILD_COMPRESSION=OFF
@@ -1037,10 +1039,6 @@ if(BUILD_SPIRV_TOOLS)
 
   ExternalProject_Add_Step(spirv-tools remove_extras
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-opt"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-reduce"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/SPIRV-Tools-link"
     DEPENDEES install
   )
 endif()
