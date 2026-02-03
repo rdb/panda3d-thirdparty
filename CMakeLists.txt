@@ -287,7 +287,6 @@ if(BUILD_ASSIMP)
   )
 
   ExternalProject_Add_Step(assimp remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
   )
@@ -319,7 +318,6 @@ if(BUILD_BULLET)
   )
 
   ExternalProject_Add_Step(bullet remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
   )
@@ -507,7 +505,6 @@ if(BUILD_OPENAL)
   )
 
   ExternalProject_Add_Step(openal remove_extras
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/cmake"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "<INSTALL_DIR>/lib/pkgconfig"
     DEPENDEES install
   )
