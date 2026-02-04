@@ -118,6 +118,15 @@ jobs:
       working-directory: thirdparty
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.config}} -j4
 
+    - name: Get NSIS (Windows)
+      if: github.event_name == 'push' && runner.os == 'Windows'
+      working-directory: thirdparty
+      run: |
+        curl.exe -sLo nsis.zip "https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11.zip/download"
+        Expand-Archive nsis.zip -DestinationPath .
+        Rename-Item nsis-3.11 win-nsis
+        Remove-Item nsis.zip
+
     - name: Get Python (Windows)
       if: github.event_name == 'push' && runner.os == 'Windows'
       working-directory: thirdparty
@@ -125,7 +134,7 @@ jobs:
 
     - name: Make ZIP file
       if: endsWith(matrix.archive, '.zip')
-      run: 7z a ${{matrix.archive}} thirdparty/${{matrix.dir}} thirdparty/win-util thirdparty/win-python*/
+      run: 7z a ${{matrix.archive}} thirdparty/${{matrix.dir}} thirdparty/win-nsis thirdparty/win-util thirdparty/win-python*/
 
     - name: Make tarball
       if: endsWith(matrix.archive, '.tar') || contains(matrix.archive, '.tar.')
